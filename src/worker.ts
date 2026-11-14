@@ -113,8 +113,8 @@ export class Sala extends DurableObject<Env> {
     switch (cmd.tipo) {
       case "marcar": {
         const n = Number(cmd.numero);
-        if (!Number.isInteger(n) || n < 1 || n > maxNumero) {
-          return this.error(ws, `El número debe estar entre 1 y ${maxNumero}`);
+        if (!Number.isInteger(n) || n < 0 || n >= maxNumero) {
+          return this.error(ws, `El número debe estar entre 0 y ${maxNumero - 1}`);
         }
         if (salidos.includes(n)) return this.error(ws, `El ${n} ya salió`);
         salidos = [...salidos, n];

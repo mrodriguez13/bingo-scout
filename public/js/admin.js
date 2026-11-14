@@ -29,8 +29,8 @@ let botones = [];
 
 function armarGrilla(max) {
   grilla.innerHTML = "";
-  botones = [null];
-  for (let n = 1; n <= max; n++) {
+  botones = [];
+  for (let n = 0; n < max; n++) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "insignia";
@@ -39,7 +39,7 @@ function armarGrilla(max) {
     grilla.appendChild(b);
     botones.push(b);
   }
-  $("numero").max = max;
+  $("numero").max = max - 1;
 }
 
 function render(e) {
@@ -55,7 +55,7 @@ function render(e) {
   $("contador").textContent = `${e.salidos.length} de ${e.maxNumero} salieron`;
 
   const salidos = new Set(e.salidos);
-  for (let n = 1; n <= e.maxNumero; n++) {
+  for (let n = 0; n < e.maxNumero; n++) {
     botones[n].classList.toggle("salio", salidos.has(n));
     botones[n].classList.toggle("ultimo", n === ultimo);
     botones[n].setAttribute("aria-pressed", String(salidos.has(n)));
@@ -91,8 +91,9 @@ async function tocarNumero(n) {
 
 $("form-numero").addEventListener("submit", (ev) => {
   ev.preventDefault();
-  const n = Number($("numero").value);
-  if (!n) return;
+  const valor = $("numero").value.trim();
+  if (valor === "") return;
+  const n = Number(valor);
   if (estado?.salidos.includes(n)) {
     avisar(`El ${n} ya había salido`, true);
   } else {
@@ -128,8 +129,8 @@ for (const b of document.querySelectorAll("[data-max]")) {
     const max = Number(b.dataset.max);
     if (!estado || max === estado.maxNumero) return;
     const msg = estado.salidos.length
-      ? `Pasar a bingo de 1 a ${max} reinicia la partida y borra los ${estado.salidos.length} números marcados.`
-      : `El tablero pasa a tener números del 1 al ${max}.`;
+      ? `Pasar a bingo de 0 a ${max - 1} reinicia la partida y borra los ${estado.salidos.length} números marcados.`
+      : `El tablero pasa a tener números del 0 al ${max - 1}.`;
     if (await confirmar(`¿Bingo de ${max}?`, msg, "Cambiar")) enviar({ tipo: "configurar", maxNumero: max });
   });
 }
