@@ -34,7 +34,7 @@ interface Adjunto {
 const ESTADO_INICIAL: Estado = {
   maxNumero: 90,
   salidos: [],
-  nombreGrupo: "Grupo Scout",
+  nombreGrupo: "Nuestra Señora del Rosario de Pompeya",
   version: 0,
   actualizado: new Date(0).toISOString(),
 };

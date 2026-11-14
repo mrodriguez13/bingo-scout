@@ -48,7 +48,7 @@ input:focus { outline: 3px solid var(--mostaza); }
 
 /* Panel */
 .cartel { position: sticky; top: 0; z-index: 10; padding-top: max(.35em, env(safe-area-inset-top)); }
-.cartel h1 { font-size: 1.5em; }
+.cartel h1 { font-size: 1.25em; line-height: 1.05; white-space: normal; overflow-wrap: anywhere; }
 .contenido { display: flex; flex-direction: column; gap: 14px; padding: 16px; max-width: 720px; margin: 0 auto; padding-bottom: 80px; }
 
 .actual { display: flex; align-items: center; gap: 16px; }

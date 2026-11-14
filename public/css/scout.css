@@ -66,7 +66,7 @@ button { font: inherit; cursor: pointer; }
 
 /* Indicador de conexión */
 .estado-conexion {
-  display: inline-flex; align-items: center; gap: .35em;
+  display: inline-flex; align-items: center; gap: .35em; white-space: nowrap; flex: none;
   font-family: var(--f-titulo); font-size: .95em; color: var(--caqui-claro);
 }
 .estado-conexion::before {

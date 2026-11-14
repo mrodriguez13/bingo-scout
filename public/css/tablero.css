@@ -96,6 +96,8 @@ body.tablero { display: flex; flex-direction: column; height: 100dvh; overflow: 
   body.tablero { overflow: auto; height: auto; min-height: 100dvh; font-size: 15px; }
   .cartel { flex-wrap: wrap; }
   .cartel .sub { display: none; }
+  .cartel .titulos { flex: 1 1 calc(100% - 3em); }
+  .cartel h1 { white-space: normal; font-size: 1.35em; }
   .escenario { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
   .parche { --tam: min(60vw, 40vh); }
   .fogon { width: 22vw; }
