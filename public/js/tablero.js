@@ -10,8 +10,8 @@ let anterior = null; // estado previo para detectar números nuevos
 function armarGrilla(max) {
   grilla.style.setProperty("--filas", Math.ceil(max / 10));
   grilla.innerHTML = "";
-  celdas = [];
-  for (let n = 0; n < max; n++) {
+  celdas = [null];
+  for (let n = 1; n <= max; n++) {
     const d = document.createElement("div");
     d.className = "insignia";
     d.textContent = n;
@@ -31,7 +31,7 @@ function render(e) {
   const ultimo = e.salidos.at(-1);
   const antesSalidos = new Set(anterior?.salidos ?? []);
 
-  for (let n = 0; n < e.maxNumero; n++) {
+  for (let n = 1; n <= e.maxNumero; n++) {
     const c = celdas[n];
     const salio = salidos.has(n);
     c.classList.toggle("salio", salio);
