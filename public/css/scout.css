@@ -139,3 +139,14 @@ button { font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Pie de página ---------- */
+.pie {
+  flex: none;
+  display: flex; align-items: center; justify-content: center; gap: .5em;
+  padding: .4em 1em .6em;
+  font-family: var(--f-titulo); font-size: .85em; color: var(--caqui-claro);
+}
+.pie a { display: inline-flex; }
+.pie img { height: 1.6em; width: auto; display: block; opacity: .9; }
+.pie a:hover img { opacity: 1; }
