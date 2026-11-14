@@ -1,0 +1,141 @@
+/* ====== Bingo Scout — estilos compartidos ====== */
+:root {
+  --bosque: #2f4f2f;
+  --bosque-osc: #1f3520;
+  --pino: #3f6b3f;
+  --caqui: #c8b88a;
+  --caqui-claro: #ddd0a8;
+  --madera: #6b4423;
+  --madera-osc: #4a2e17;
+  --mostaza: #e0a526;
+  --fuego: #d9541e;
+  --crema: #f4ebd0;
+  --tinta: #2b2116;
+  --rojo: #b3361f;
+
+  --f-titulo: "Patrick Hand", "Comic Sans MS", cursive;
+  --f-numero: "Bitter", "Roboto Slab", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  font-family: var(--f-numero);
+  color: var(--tinta);
+  background-color: var(--bosque);
+  /* textura de lona + curvas de nivel suaves */
+  background-image:
+    radial-gradient(ellipse at 20% 30%, transparent 0 38%, rgba(255,255,255,.04) 39% 40%, transparent 41% 52%, rgba(255,255,255,.04) 53% 54%, transparent 55%),
+    radial-gradient(ellipse at 80% 75%, transparent 0 30%, rgba(255,255,255,.035) 31% 32%, transparent 33% 45%, rgba(255,255,255,.035) 46% 47%, transparent 48%),
+    repeating-linear-gradient(45deg, rgba(0,0,0,.05) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.03) 0 2px, transparent 2px 6px);
+}
+
+button { font: inherit; cursor: pointer; }
+
+/* ---------- Cartel de madera (encabezado) ---------- */
+.cartel {
+  display: flex;
+  align-items: center;
+  gap: .6em;
+  padding: .35em .9em;
+  color: var(--crema);
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 3px, transparent 3px 40px),
+    linear-gradient(180deg, #7a4f2a, var(--madera) 55%, var(--madera-osc));
+  border-bottom: 4px solid var(--madera-osc);
+  box-shadow: 0 4px 0 rgba(0,0,0,.25);
+}
+.cartel .flor { width: 1.6em; height: 1.9em; color: var(--mostaza); flex: none; }
+.cartel h1 {
+  font-family: var(--f-titulo);
+  font-weight: 400;
+  margin: 0;
+  line-height: 1;
+  font-size: 1.6em;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 0 rgba(0,0,0,.35);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cartel .sub { font-family: var(--f-titulo); color: var(--caqui-claro); font-size: 1em; }
+.cartel .espacio { flex: 1; }
+
+/* Indicador de conexión */
+.estado-conexion {
+  display: inline-flex; align-items: center; gap: .35em;
+  font-family: var(--f-titulo); font-size: .95em; color: var(--caqui-claro);
+}
+.estado-conexion::before {
+  content: ""; width: .7em; height: .7em; border-radius: 50%;
+  background: var(--rojo); box-shadow: 0 0 0 2px rgba(0,0,0,.25);
+}
+.estado-conexion.ok::before { background: #6fcf5a; }
+
+.boton-icono {
+  background: rgba(0,0,0,.2);
+  color: var(--crema);
+  border: 2px dashed rgba(244,235,208,.5);
+  border-radius: .5em;
+  padding: .2em .5em;
+  font-size: 1em;
+}
+.boton-icono:hover { background: rgba(0,0,0,.35); }
+.boton-icono[aria-pressed="true"] { border-style: solid; border-color: var(--mostaza); color: var(--mostaza); }
+
+/* ---------- Insignias (números) ---------- */
+.insignia {
+  display: grid; place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-family: var(--f-numero);
+  font-weight: 800;
+  color: rgba(43,33,22,.45);
+  background: radial-gradient(circle at 35% 30%, var(--caqui-claro), var(--caqui) 70%);
+  outline: 2px dashed rgba(107,68,35,.35);
+  outline-offset: -0.18em;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 2px 0 rgba(0,0,0,.25);
+  transition: background .3s, color .3s, transform .3s;
+  user-select: none;
+}
+.insignia.salio {
+  color: var(--crema);
+  background: radial-gradient(circle at 35% 30%, var(--pino), var(--bosque-osc) 75%);
+  outline: 2px dashed var(--mostaza);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.3), 0 0 0 .12em var(--mostaza), 0 3px 0 rgba(0,0,0,.35);
+}
+.insignia.ultimo {
+  color: var(--madera-osc);
+  background: radial-gradient(circle at 35% 30%, #ffd772, var(--mostaza) 70%);
+  outline-color: var(--madera);
+  box-shadow: 0 0 0 .12em var(--madera), 0 0 .6em .2em rgba(224,165,38,.8);
+  animation: latido 1.6s ease-in-out infinite;
+}
+.insignia.recien { animation: coser .7s cubic-bezier(.2,1.6,.4,1); }
+
+@keyframes coser {
+  0% { transform: scale(.4) rotate(-30deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes latido {
+  0%, 100% { box-shadow: 0 0 0 .12em var(--madera), 0 0 .5em .1em rgba(224,165,38,.6); }
+  50%      { box-shadow: 0 0 0 .12em var(--madera), 0 0 1em .35em rgba(224,165,38,.95); }
+}
+
+/* ---------- Avisos ---------- */
+.aviso {
+  position: fixed; left: 50%; bottom: 1.2em; transform: translateX(-50%) translateY(calc(100% + 3em)); visibility: hidden;
+  background: var(--madera-osc); color: var(--crema);
+  border: 2px dashed var(--mostaza); border-radius: .6em;
+  padding: .6em 1em; font-family: var(--f-titulo); font-size: 1.15em;
+  transition: transform .25s, visibility .25s; z-index: 50; max-width: calc(100vw - 32px); text-align: center;
+}
+.aviso.visible { transform: translateX(-50%) translateY(0); visibility: visible; }
+.aviso.error { background: var(--rojo); border-color: var(--crema); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

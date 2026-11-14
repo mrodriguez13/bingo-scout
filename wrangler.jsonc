@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bingo-scout",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-10-01",
+
+  // Archivos estáticos (tablero, admin, css, js)
+  "assets": {
+    "directory": "./public",
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/ws", "/api/*"]
+  },
+
+  // Una sola sala: un Durable Object que guarda el estado y reparte los cambios por WebSocket
+  "durable_objects": {
+    "bindings": [{ "name": "SALA", "class_name": "Sala" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Sala"] }],
+
+  "observability": { "enabled": true }
+}

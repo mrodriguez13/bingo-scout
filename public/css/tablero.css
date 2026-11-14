@@ -1,0 +1,105 @@
+/* ====== Tablero para proyectar ====== */
+body.tablero { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; font-size: clamp(14px, 1.6vmin + 6px, 30px); }
+
+.cartel .titulos { min-width: 0; }
+.contador {
+  font-family: var(--f-numero); font-weight: 800; font-size: 1.1em;
+  background: var(--bosque-osc); color: var(--mostaza);
+  padding: .15em .6em; border-radius: 1em; border: 2px dashed var(--mostaza);
+  white-space: nowrap;
+}
+
+.escenario {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 32%) minmax(0, 1fr);
+  gap: 2vmin;
+  padding: 2vmin;
+}
+
+/* ----- Panel del último número ----- */
+.panel {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.2vmin; min-height: 0;
+  background: rgba(0,0,0,.18);
+  border: 3px dashed rgba(244,235,208,.25);
+  border-radius: 2vmin;
+  padding: 2vmin;
+}
+.etiqueta { font-family: var(--f-titulo); color: var(--crema); font-size: 2em; line-height: 1; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.etiqueta.chica { font-size: 1.3em; color: var(--caqui-claro); margin-top: .5vmin; }
+
+/* Parche con borde de soga */
+.parche {
+  --tam: min(26vw, 46vh);
+  width: var(--tam); aspect-ratio: 1; border-radius: 50%;
+  padding: calc(var(--tam) * .055);
+  background: repeating-conic-gradient(from 0deg, #d8c48e 0 5deg, #9c8250 5deg 10deg);
+  box-shadow: 0 .8vmin 0 rgba(0,0,0,.35), inset 0 0 0 2px rgba(0,0,0,.25);
+  flex: none;
+}
+.parche-interior {
+  width: 100%; height: 100%; border-radius: 50%;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #fff2c6, var(--crema) 45%, var(--caqui) 100%);
+  outline: calc(var(--tam) * .012) dashed var(--madera);
+  outline-offset: calc(var(--tam) * -.045);
+  box-shadow: inset 0 0 0 calc(var(--tam) * .02) var(--bosque);
+  overflow: hidden;
+}
+.ultimo-numero {
+  font-family: var(--f-numero); font-weight: 900;
+  font-size: calc(var(--tam) * .5); line-height: 1;
+  color: var(--bosque);
+  text-shadow: 0 .04em 0 var(--mostaza), 0 .08em 0 rgba(0,0,0,.2);
+}
+.ultimo-numero.vacio {
+  font-family: var(--f-titulo); font-weight: 400; font-size: calc(var(--tam) * .13);
+  text-align: center; padding: 0 12%; color: var(--madera); text-shadow: none;
+}
+.ultimo-numero.entra { animation: entrar .8s cubic-bezier(.2,1.5,.4,1); }
+@keyframes entrar {
+  0% { transform: scale(.2) rotate(-25deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* Fogón */
+.fogon { width: min(12vw, 16vh); flex: none; overflow: visible; }
+.llama { transform-origin: 60px 60px; }
+.l1 { fill: var(--fuego); animation: titila 1.1s ease-in-out infinite alternate; }
+.l2 { fill: var(--mostaza); animation: titila .8s ease-in-out infinite alternate-reverse; }
+@keyframes titila {
+  0% { transform: scale(1, 1) skewX(0); }
+  50% { transform: scale(.95, 1.08) skewX(3deg); }
+  100% { transform: scale(1.04, .94) skewX(-3deg); }
+}
+
+.historial { display: flex; gap: 1vmin; justify-content: center; min-height: 6vmin; }
+.historial .insignia { width: min(5vw, 8vh); font-size: min(2vw, 3.3vh); }
+
+/* ----- Grilla de números ----- */
+.zona-grilla { container-type: size; min-height: 0; display: grid; place-items: center; }
+.grilla {
+  --filas: 9;
+  --c: min(100cqw / 10, 100cqh / var(--filas));
+  display: grid;
+  grid-template-columns: repeat(10, var(--c));
+  grid-auto-rows: var(--c);
+}
+.grilla .insignia {
+  margin: calc(var(--c) * .07);
+  font-size: calc(var(--c) * .4);
+}
+
+/* ----- Pantallas angostas (celular / vertical) ----- */
+@media (max-aspect-ratio: 1/1) {
+  body.tablero { overflow: auto; height: auto; min-height: 100dvh; font-size: 15px; }
+  .cartel { flex-wrap: wrap; }
+  .cartel .sub { display: none; }
+  .escenario { grid-template-columns: 1fr; padding: 16px; gap: 16px; }
+  .parche { --tam: min(60vw, 40vh); }
+  .fogon { width: 22vw; }
+  .historial .insignia { width: 11vw; font-size: 4.5vw; }
+  .zona-grilla { container-type: inline-size; }
+  .grilla { --c: calc(100cqw / 10); }
+}

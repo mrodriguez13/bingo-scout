@@ -1,0 +1,85 @@
+/* ====== Panel de administración (celular primero) ====== */
+body.admin { font-size: 16px; min-height: 100dvh; }
+
+.tarjeta {
+  background: linear-gradient(180deg, var(--crema), #eadfbd);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.3);
+  outline: 2px dashed rgba(107,68,35,.45);
+  outline-offset: -7px;
+}
+.rotulo { font-family: var(--f-titulo); font-size: 1.15em; color: var(--madera); margin-bottom: 8px; }
+.fila { display: flex; gap: 8px; }
+.fila > input { flex: 1; min-width: 0; }
+
+input {
+  font: inherit; font-size: 1.3em; font-weight: 800;
+  padding: 10px 12px; border-radius: 10px;
+  border: 2px solid var(--madera); background: #fffaf0; color: var(--tinta);
+}
+input:focus { outline: 3px solid var(--mostaza); }
+
+.btn {
+  border: none; border-radius: 10px; padding: 12px 16px;
+  font-weight: 800; font-size: 1.05em;
+  box-shadow: 0 3px 0 rgba(0,0,0,.3);
+  transition: transform .05s;
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.3); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primario { background: var(--bosque); color: var(--crema); outline: 2px dashed var(--mostaza); outline-offset: -5px; }
+.btn-secundario { background: var(--caqui); color: var(--madera-osc); }
+.btn-peligro { background: var(--rojo); color: var(--crema); }
+.btn-opcion { flex: 1; background: var(--caqui-claro); color: var(--madera-osc); }
+.btn-opcion.activo { background: var(--bosque); color: var(--crema); outline: 2px dashed var(--mostaza); outline-offset: -5px; }
+
+.link { color: var(--madera); font-family: var(--f-titulo); font-size: 1.1em; text-align: center; display: block; }
+
+/* Ingreso */
+.ingreso { min-height: 100dvh; display: grid; place-items: center; padding: 16px; }
+.ingreso .tarjeta { width: min(100%, 360px); display: flex; flex-direction: column; gap: 12px; text-align: center; padding: 24px 20px; }
+.ingreso h1 { font-family: var(--f-titulo); font-weight: 400; margin: 0; font-size: 2em; color: var(--bosque); }
+.ingreso p { margin: 0; }
+.ingreso input { text-align: center; letter-spacing: .3em; }
+.flor-grande { color: var(--bosque); margin: 0 auto; }
+.flor-grande .flor { width: 60px; height: 72px; }
+.error { color: var(--rojo); font-weight: 800; min-height: 1.2em; }
+
+/* Panel */
+.cartel { position: sticky; top: 0; z-index: 10; padding-top: max(.35em, env(safe-area-inset-top)); }
+.cartel h1 { font-size: 1.5em; }
+.contenido { display: flex; flex-direction: column; gap: 14px; padding: 16px; max-width: 720px; margin: 0 auto; padding-bottom: 80px; }
+
+.actual { display: flex; align-items: center; gap: 16px; }
+.mini-parche {
+  width: 110px; aspect-ratio: 1; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, #ffd772, var(--mostaza) 70%);
+  box-shadow: 0 0 0 6px var(--madera), 0 0 0 8px var(--madera-osc);
+  outline: 2px dashed var(--madera); outline-offset: -8px;
+}
+.mini-parche span { font-weight: 900; font-size: 52px; color: var(--madera-osc); }
+.actual-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.actual-info .rotulo { margin: 0; }
+.cuenta { font-weight: 800; color: var(--bosque); }
+
+.grilla-admin { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.grilla-admin .insignia {
+  border: none; padding: 0; font-size: clamp(12px, 3.6vw, 20px); color: rgba(43,33,22,.7);
+}
+.grilla-admin .insignia.salio { color: var(--crema); }
+.grilla-admin .insignia.ultimo { color: var(--madera-osc); animation: none; }
+.grilla-admin .insignia:disabled { cursor: not-allowed; }
+
+.ajustes summary { font-family: var(--f-titulo); font-size: 1.3em; color: var(--madera); cursor: pointer; }
+.ajustes[open] { display: flex; flex-direction: column; gap: 12px; }
+.ajustes[open] summary { margin-bottom: 4px; }
+.opciones { display: flex; gap: 8px; }
+.nota { margin: 0; font-size: .9em; color: var(--madera); }
+
+dialog { border: none; padding: 0; background: transparent; width: min(calc(100vw - 32px), 400px); }
+dialog::backdrop { background: rgba(20, 30, 20, .7); }
+dialog h2 { font-family: var(--f-titulo); font-weight: 400; font-size: 1.8em; margin: 0 0 6px; color: var(--bosque); }
+dialog p { margin: 0 0 16px; }
+dialog .fila .btn { flex: 1; }

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bingo Scout · Admin</title>
+  <meta name="theme-color" content="#6b4423">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%236b4423' stroke='%23e0a526' stroke-width='6' stroke-dasharray='8 6'/><text x='50' y='66' font-size='44' text-anchor='middle' fill='%23f4ebd0' font-family='Georgia' font-weight='bold'>A</text></svg>">
+  <link rel="stylesheet" href="/css/scout.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin">
+  <!-- Ingreso -->
+  <section class="ingreso" id="pantalla-ingreso">
+    <form class="tarjeta" id="form-pin">
+      <div class="flor-grande" id="flor-ingreso"></div>
+      <h1>Panel del dirigente</h1>
+      <p>Ingresá el PIN para manejar el tablero.</p>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required>
+      <button type="submit" class="btn btn-primario">Entrar</button>
+      <p class="error" id="error-pin" role="alert"></p>
+      <a class="link" href="/">Ver el tablero →</a>
+    </form>
+  </section>
+
+  <!-- Panel -->
+  <div id="pantalla-panel" hidden>
+    <header class="cartel">
+      <span id="flor"></span>
+      <h1 id="nombre-grupo">Grupo Scout</h1>
+      <span class="espacio"></span>
+      <span class="estado-conexion" id="conexion">Conectando…</span>
+    </header>
+
+    <main class="contenido">
+      <section class="tarjeta actual">
+        <div class="mini-parche"><span id="ultimo">–</span></div>
+        <div class="actual-info">
+          <div class="rotulo">Último número</div>
+          <div class="cuenta" id="contador">0 de 90 salieron</div>
+          <button class="btn btn-secundario" id="btn-deshacer">↶ Deshacer último</button>
+        </div>
+      </section>
+
+      <form class="tarjeta carga" id="form-numero">
+        <label for="numero" class="rotulo">Número que salió</label>
+        <div class="fila">
+          <input id="numero" type="number" inputmode="numeric" min="1" max="90" placeholder="Ej: 47" autocomplete="off">
+          <button type="submit" class="btn btn-primario">Marcar</button>
+        </div>
+      </form>
+
+      <section class="tarjeta">
+        <div class="rotulo">Tocá un número para marcarlo · tocá uno marcado para borrarlo</div>
+        <div class="grilla-admin" id="grilla"></div>
+      </section>
+
+      <details class="tarjeta ajustes">
+        <summary>⚙️ Ajustes de la partida</summary>
+        <form id="form-nombre" class="fila">
+          <input id="input-nombre" maxlength="60" placeholder="Nombre del grupo">
+          <button class="btn btn-secundario" type="submit">Guardar</button>
+        </form>
+        <div class="rotulo">Cantidad de números</div>
+        <div class="opciones" id="opciones-tamanio">
+          <button type="button" class="btn btn-opcion" data-max="70">1 a 70</button>
+          <button type="button" class="btn btn-opcion" data-max="90">1 a 90</button>
+        </div>
+        <p class="nota">Cambiar la cantidad arranca una partida nueva.</p>
+        <button class="btn btn-peligro" id="btn-reiniciar">⟲ Reiniciar tablero</button>
+        <a class="link" href="/" target="_blank" rel="noopener">Abrir el tablero en otra pestaña ↗</a>
+      </details>
+    </main>
+  </div>
+
+  <dialog id="dialogo">
+    <form method="dialog" class="tarjeta">
+      <h2 id="dialogo-titulo"></h2>
+      <p id="dialogo-texto"></p>
+      <div class="fila">
+        <button value="no" class="btn btn-secundario">Cancelar</button>
+        <button value="si" class="btn btn-peligro" id="dialogo-si">Sí</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="aviso" id="aviso"></div>
+  <script type="module" src="/js/admin.js"></script>
+</body>
+</html>
