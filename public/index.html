@@ -23,6 +23,15 @@
     <span class="contador" id="contador">0 / 90</span>
     <span class="estado-conexion" id="conexion">Conectando…</span>
     <button class="boton-icono" id="btn-voz" aria-pressed="false" title="Cantar los números en voz alta">🔇 Voz</button>
+    <button class="boton-icono" id="btn-repetir" title="Volver a cantar el último número">🔁 Repetir</button>
+    <button class="boton-icono" id="btn-ajustes-voz" aria-expanded="false" aria-controls="panel-voz" title="Elegir la voz">⚙</button>
+    <div class="panel-voz" id="panel-voz" hidden>
+      <label for="sel-voz">Voz</label>
+      <select id="sel-voz"></select>
+      <p class="nota-voz" id="nota-voz"></p>
+      <label class="check"><input type="checkbox" id="chk-cifras"> <span>Decir también las cifras <span class="ej">(“47… cuatro, siete”)</span></span></label>
+      <button type="button" class="boton-icono" id="btn-probar-voz">▶ Probar</button>
+    </div>
     <button class="boton-icono" id="btn-pantalla" title="Pantalla completa">⛶</button>
   </header>
 

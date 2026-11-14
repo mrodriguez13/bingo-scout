@@ -21,6 +21,7 @@ type Comando =
   | { tipo: "auth"; pin: string }
   | { tipo: "marcar"; numero: number }
   | { tipo: "desmarcar"; numero: number }
+  | { tipo: "repetir" }
   | { tipo: "deshacer" }
   | { tipo: "reiniciar" }
   | { tipo: "configurar"; maxNumero?: number; nombreGrupo?: string };
@@ -110,6 +111,14 @@ export class Sala extends DurableObject<Env> {
     let salidos = e.salidos;
     let { maxNumero, nombreGrupo } = e;
 
+    // Repetir no cambia el estado: solo pide a los tableros que vuelvan a cantar el último número.
+    if (cmd.tipo === "repetir") {
+      const ultimo = salidos.at(-1);
+      if (ultimo === undefined) return this.error(ws, "Todavía no salió ningún número");
+      this.difundir({ tipo: "repetir", numero: ultimo });
+      return;
+    }
+
     switch (cmd.tipo) {
       case "marcar": {
         const n = Number(cmd.numero);
@@ -169,8 +178,8 @@ export class Sala extends DurableObject<Env> {
     }
   }
 
-  private difundir() {
-    const msg = JSON.stringify({ tipo: "estado", estado: this.estado });
+  private difundir(mensaje: object = { tipo: "estado", estado: this.estado }) {
+    const msg = JSON.stringify(mensaje);
     for (const ws of this.ctx.getWebSockets()) {
       try {
         ws.send(msg);

@@ -88,3 +88,5 @@ dialog .fila .btn { flex: 1; }
 body.admin { display: flex; flex-direction: column; }
 body.admin > #pantalla-panel { flex: 1; }
 body.admin > .ingreso { flex: 1; min-height: 0; }
+.acciones-actual { flex-wrap: wrap; }
+.acciones-actual .btn { flex: 1 1 auto; }

@@ -69,7 +69,10 @@ function render(e) {
 function habilitar() {
   const ok = conectado && autenticado;
   for (const el of document.querySelectorAll("#pantalla-panel button, #pantalla-panel input")) el.disabled = !ok;
-  if (ok && estado) $("btn-deshacer").disabled = estado.salidos.length === 0;
+  if (ok && estado) {
+    $("btn-deshacer").disabled = estado.salidos.length === 0;
+    $("btn-repetir").disabled = estado.salidos.length === 0;
+  }
 }
 
 // ---------- Acciones ----------
@@ -108,6 +111,11 @@ $("btn-deshacer").addEventListener("click", async () => {
   if (await confirmar(`¿Deshacer el ${u}?`, "Se quita el último número que salió.", "Deshacer")) {
     enviar({ tipo: "deshacer" });
   }
+});
+
+$("btn-repetir").addEventListener("click", () => {
+  enviar({ tipo: "repetir" });
+  avisar("Repitiendo en el tablero");
 });
 
 $("btn-reiniciar").addEventListener("click", async () => {
