@@ -84,3 +84,51 @@ p { margin: 0; line-height: 1.45; color: rgba(255, 255, 255, .88); }
   animation: latir 1.2s ease-in-out infinite;
 }
 .banner .chico { display: block; font-weight: 400; margin-top: 4px; }
+
+/* ---------- Muro: compartir y reaccionar ---------- */
+body.jugar.con-acciones { padding-bottom: 150px; }
+.btn-compartir {
+  position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 20;
+  font-size: 1.1em; padding: .9em;
+}
+.reacciones {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 19;
+  padding: 10px 16px calc(84px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgba(11, 14, 46, .95) 30%);
+  text-align: center;
+}
+.reac-titulo { font-size: .75em; color: var(--suave); display: block; margin-bottom: 6px; }
+.reac-botones { display: flex; justify-content: center; gap: 8px; }
+.reac-botones button {
+  font-size: 1.7em; width: 1.9em; height: 1.9em; border-radius: 50%;
+  background: rgba(255, 255, 255, .08); border: 1px solid rgba(185, 188, 245, .3);
+  transition: transform .1s;
+}
+.reac-botones button:active { transform: scale(1.3); }
+
+.hoja { position: fixed; inset: 0; z-index: 40; background: rgba(5, 7, 24, .75); display: flex; align-items: flex-end; animation: entrar .25s ease both; }
+.hoja-panel {
+  width: 100%; max-height: 92dvh; overflow: auto; border-radius: 22px 22px 0 0;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+.hoja-cabecera { display: flex; align-items: center; justify-content: space-between; }
+.hoja-cabecera h2 { font-family: var(--f-titulo); font-size: 1.25em; margin: 0; }
+.cerrar { background: transparent; border: 0; color: var(--suave); font-size: 1.3em; }
+.tipos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.tipos button { border-radius: 12px; padding: .7em .4em; background: rgba(11, 14, 46, .6); border: 1px solid rgba(124, 130, 232, .3); color: var(--suave); font-weight: 700; }
+.tipos button.activo { background: linear-gradient(135deg, var(--azul), var(--teal)); color: #fff; border-color: transparent; }
+textarea {
+  font: inherit; color: var(--blanco); resize: vertical; line-height: 1.4;
+  background: rgba(11, 14, 46, .7); border: 1px solid rgba(124, 130, 232, .4);
+  border-radius: 12px; padding: .8em .9em;
+}
+textarea:focus { outline: 2px solid var(--cian); outline-offset: 1px; }
+.contador-letras { font-size: .75em; color: var(--suave); text-align: right; margin-top: -6px; }
+.foto-zona {
+  position: relative; display: grid; place-items: center; min-height: 140px; border-radius: 14px;
+  border: 2px dashed rgba(124, 130, 232, .5); background: rgba(11, 14, 46, .5); color: var(--suave);
+  overflow: hidden; cursor: pointer; text-align: center; padding: 10px;
+}
+.foto-zona input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.foto-zona img { max-width: 100%; max-height: 240px; border-radius: 10px; display: block; }

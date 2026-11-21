@@ -73,4 +73,6 @@ Sorteo para la fiesta de fin de año de Sinaptic, en el mismo sitio y con su pro
 
 - **Premio al mejor compañero/a** — desde el control, el botón *Premio* cambia la pantalla grande a los nominados y *¡Revelar ganador/a!* lanza el show: terminal, reflector que salta entre nombres, eliminación con efecto glitch (orden al azar, no se muestran votos) y la revelación con los motivos como "logros desbloqueados". Nominados, ganador/a, título y motivos se editan desde el control; el resultado sale de la encuesta, la animación es puro show.
 
+- **Muro** — con el muro abierto desde el control, los celulares tienen el botón *Compartir algo* para subir frases, agradecimientos, anécdotas o fotos (se achican en el celular antes de subirse). En el modo *Muro* la pantalla grande las va rotando (las anécdotas duran más según su largo, lo nuevo sale primero) y los celulares pueden mandar reacciones que flotan en pantalla. El modo *Resumen* muestra un mosaico con todo lo compartido. Desde el control se puede ocultar, borrar o destacar cada post y **descargar todo en JSON** (con los links a las fotos).
+
 Los números y frases están en `src/frases.ts`. El ganador se elige en el servidor con `crypto.getRandomValues()`.

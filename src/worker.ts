@@ -212,7 +212,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
     // Sinaptic Fest (sorteo): sala propia, separada del bingo
-    if (pathname === "/sinaptic/ws" || pathname === "/sinaptic/api/estado") {
+    if (pathname === "/sinaptic/ws" || pathname.startsWith("/sinaptic/api/")) {
       const fiesta = env.FIESTA.get(env.FIESTA.idFromName("sinaptic-fest"));
       return fiesta.fetch(request);
     }

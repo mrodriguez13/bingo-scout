@@ -34,6 +34,17 @@
 
     <main class="contenido">
       <section class="tarjeta">
+        <h2>📺 Pantalla grande</h2>
+        <div class="segmentado cuatro" id="modos">
+          <button type="button" data-modo="sorteo">🎰 Sorteo</button>
+          <button type="button" data-modo="companero">🏅 Premio</button>
+          <button type="button" data-modo="muro">💜 Muro</button>
+          <button type="button" data-modo="resumen">🧩 Resumen</button>
+        </div>
+        <p class="ayuda" id="ayuda-modo"></p>
+      </section>
+
+      <section class="tarjeta">
         <h2>1 · Inscripción</h2>
         <div class="segmentado" id="fases">
           <button type="button" data-fase="espera">⏳ Espera</button>
@@ -59,11 +70,6 @@
 
       <section class="tarjeta compa-admin">
         <h2>🏅 Mejor compañero/a</h2>
-        <div class="segmentado dos" id="modos">
-          <button type="button" data-modo="sorteo">🎰 Sorteo</button>
-          <button type="button" data-modo="companero">🏅 Premio</button>
-        </div>
-        <p class="ayuda">Elegí qué muestra la pantalla grande. En “Premio” aparecen los nominados esperando la revelación.</p>
         <button class="btn btn-primario btn-girar" id="btn-revelar">🏆 ¡Revelar ganador/a!</button>
         <button class="btn" id="btn-preparar">⟲ Volver a los nominados</button>
         <p class="ayuda" id="ayuda-compa"></p>
@@ -82,6 +88,21 @@
             <button class="btn btn-primario" type="submit">Guardar</button>
           </form>
         </details>
+      </section>
+
+      <section class="tarjeta">
+        <h2>💜 Muro</h2>
+        <div class="segmentado dos" id="muro-abierto">
+          <button type="button" data-abierto="0">🔒 Cerrado</button>
+          <button type="button" data-abierto="1">✍️ Abierto</button>
+        </div>
+        <p class="ayuda" id="ayuda-muro"></p>
+        <div class="fila">
+          <button class="btn" id="btn-muro-pausa">⏸ Pausar</button>
+          <button class="btn" id="btn-muro-saltar">⏭ Siguiente</button>
+        </div>
+        <button class="btn" id="btn-exportar">⬇ Descargar todo (JSON)</button>
+        <ul class="lista posts" id="lista-posts"></ul>
       </section>
 
       <section class="tarjeta">
@@ -114,6 +135,8 @@
         <summary><h2>⚠️ Zona peligrosa</h2></summary>
         <p class="ayuda">Borra participantes, números y ganadores. Los premios se mantienen.</p>
         <button class="btn btn-peligro" id="btn-reiniciar">Reiniciar todo</button>
+        <p class="ayuda">Vaciar el muro borra todos los posts y fotos (descargá el JSON antes).</p>
+        <button class="btn btn-peligro" id="btn-vaciar-muro">Vaciar muro</button>
       </details>
 
       <p class="links">

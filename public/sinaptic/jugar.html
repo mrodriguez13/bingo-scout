@@ -24,6 +24,7 @@
       <div class="emoji-grande">👀</div>
       <h1>Sinaptic <span class="gradiente">Fest</span></h1>
       <p>La inscripción todavía no abrió.<br>Quedate en esta pantalla: cuando arranque, se activa sola.</p>
+      <p class="sub" id="espera-muro" hidden>Mientras tanto, compartí algo en el muro 👇</p>
       <p class="terminal mono"><span id="espera-linea">esperando señal del servidor</span><span class="cursor">▋</span></p>
     </section>
 
@@ -68,6 +69,42 @@
       <p>Ya no se pueden pedir números. Si te quedaste afuera, avisale a quien conduce.</p>
     </section>
   </main>
+
+  <!-- Muro: compartir y reaccionar -->
+  <button class="btn btn-primario btn-compartir" id="btn-compartir" hidden>📸 Compartir algo</button>
+  <div class="reacciones" id="reacciones" hidden>
+    <span class="reac-titulo">Reaccioná a lo que está en pantalla</span>
+    <div class="reac-botones">
+      <button data-emoji="❤️">❤️</button><button data-emoji="😂">😂</button><button data-emoji="👏">👏</button>
+      <button data-emoji="🔥">🔥</button><button data-emoji="🙌">🙌</button><button data-emoji="😮">😮</button>
+    </div>
+  </div>
+
+  <div class="hoja" id="hoja" hidden>
+    <form class="hoja-panel tarjeta" id="form-post" autocomplete="off">
+      <div class="hoja-cabecera">
+        <h2>Compartí con el equipo 💜</h2>
+        <button type="button" class="cerrar" id="btn-cerrar-hoja" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="tipos" id="tipos">
+        <button type="button" data-tipo="frase" class="activo">💬 Frase</button>
+        <button type="button" data-tipo="gracias">🙏 Gracias</button>
+        <button type="button" data-tipo="anecdota">📖 Anécdota</button>
+        <button type="button" data-tipo="foto">📸 Foto</button>
+      </div>
+      <input id="post-nombre" maxlength="30" placeholder="Tu nombre" hidden>
+      <input id="post-para" maxlength="30" placeholder="¿Para quién? (opcional)" hidden>
+      <label class="foto-zona" id="foto-zona" hidden>
+        <input type="file" id="post-foto" accept="image/*">
+        <img id="foto-preview" alt="" hidden>
+        <span id="foto-texto">📷 Tocá para elegir o sacar una foto</span>
+      </label>
+      <textarea id="post-texto" rows="4" placeholder="Una frase, una palabra, algo que te quedó del año…"></textarea>
+      <div class="contador-letras mono" id="contador-letras"></div>
+      <p class="error" id="error-post" role="alert"></p>
+      <button class="btn btn-primario" type="submit" id="btn-publicar">Publicar en pantalla 🚀</button>
+    </form>
+  </div>
 
   <footer class="pie-fest">
     <span>Desarrollado por</span>

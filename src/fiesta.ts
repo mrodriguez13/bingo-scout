@@ -36,8 +36,37 @@ interface PremioCompa {
   motivos: string[];
 }
 
+/** Muro: frases, agradecimientos, anécdotas y fotos que comparte la gente. */
+type TipoPost = "frase" | "gracias" | "anecdota" | "foto";
+export interface Post {
+  id: number;
+  tipo: TipoPost;
+  autor: string;
+  texto: string;
+  para: string;      // destinatario de un agradecimiento ("" si no aplica)
+  foto: boolean;     // tiene foto en /sinaptic/api/foto/<id>
+  creado: string;    // ISO
+  oculto: boolean;
+}
+
+interface MuroCtl {
+  pausa: boolean;
+  saltar: number;                              // se incrementa para pasar al siguiente
+  destacar: { id: number; n: number } | null;  // n cambia en cada pedido
+}
+
+type Modo = "sorteo" | "companero" | "muro" | "resumen";
+const MODOS: Modo[] = ["sorteo", "companero", "muro", "resumen"];
+
+const LIMITES: Record<TipoPost, number> = { frase: 280, gracias: 280, anecdota: 800, foto: 200 };
+const MAX_FOTO = 1_500_000; // bytes
+const ESPERA_ENTRE_POSTS = 6000; // ms por celular
+const EMOJIS = ["❤️", "😂", "👏", "🔥", "🙌", "😮"];
+
 export interface EstadoFiesta {
-  modo: "sorteo" | "companero"; // qué muestra la pantalla grande
+  modo: Modo; // qué muestra la pantalla grande
+  muroAbierto: boolean;
+  muroCtl: MuroCtl;
   compa: PremioCompa;
   revelacion: number | null;    // id del último show de revelación (null = mostrar nominados)
   fase: Fase;
@@ -62,7 +91,15 @@ type Comando =
   | { tipo: "deshacerGanador" }
   | { tipo: "permitirRepetir"; permitir: boolean }
   | { tipo: "reiniciar" }
-  | { tipo: "modo"; modo: "sorteo" | "companero" }
+  | { tipo: "modo"; modo: Modo }
+  | { tipo: "reaccion"; emoji: string }
+  | { tipo: "muroAbierto"; abierto: boolean }
+  | { tipo: "muroPausa"; pausa: boolean }
+  | { tipo: "muroSaltar" }
+  | { tipo: "muroDestacar"; id: number }
+  | { tipo: "postOcultar"; id: number; oculto: boolean }
+  | { tipo: "postBorrar"; id: number }
+  | { tipo: "muroVaciar" }
   | { tipo: "compa"; nominados: string[]; ganadora: string; titulo: string; motivos: string[] }
   | { tipo: "revelarCompa" }
   | { tipo: "prepararCompa" };
@@ -92,6 +129,8 @@ const COMPA_INICIAL: PremioCompa = {
 
 const estadoInicial = (premios?: string[], compa?: PremioCompa): EstadoFiesta => ({
   modo: "sorteo",
+  muroAbierto: false,
+  muroCtl: { pausa: false, saltar: 0, destacar: null },
   compa: compa ?? COMPA_INICIAL,
   revelacion: null,
   fase: "espera",
@@ -120,6 +159,9 @@ export class Fiesta extends DurableObject<EnvFiesta> {
   private estado: EstadoFiesta = estadoInicial();
   private tokens: Record<string, number> = {}; // token del celular → número (privado)
   private giroHasta = 0;
+  private posts: Post[] = [];
+  private ultimoPost = new Map<string, number>(); // token → momento del último post
+  private ultimaReaccion = new WeakMap<WebSocket, number>();
 
   constructor(ctx: DurableObjectState, env: EnvFiesta) {
     super(ctx, env);
@@ -128,6 +170,7 @@ export class Fiesta extends DurableObject<EnvFiesta> {
       // completar campos nuevos si el estado guardado es de una versión anterior
       this.estado = { ...estadoInicial(), ...((await ctx.storage.get<EstadoFiesta>("estado")) ?? {}) };
       this.tokens = (await ctx.storage.get<Record<string, number>>("tokens")) ?? {};
+      this.posts = (await ctx.storage.get<Post[]>("posts")) ?? [];
     });
   }
 
@@ -136,6 +179,10 @@ export class Fiesta extends DurableObject<EnvFiesta> {
     if (url.pathname.endsWith("/api/estado")) {
       return Response.json(this.estado, { headers: { "cache-control": "no-store" } });
     }
+    if (url.pathname.endsWith("/api/publicar") && request.method === "POST") return this.publicar(request);
+    const foto = url.pathname.match(/\/api\/foto\/(\d+)$/);
+    if (foto) return this.servirFoto(Number(foto[1]));
+    if (url.pathname.endsWith("/api/muro.json")) return this.exportar(request, url);
     if (request.headers.get("Upgrade") !== "websocket") {
       return new Response("Se esperaba un WebSocket", { status: 426 });
     }
@@ -145,7 +192,92 @@ export class Fiesta extends DurableObject<EnvFiesta> {
     this.ctx.acceptWebSocket(servidor, [rol]);
     servidor.serializeAttachment({ rol, autenticado: false, intentos: 0 } satisfies Adjunto);
     servidor.send(JSON.stringify({ tipo: "estado", estado: this.estado }));
+    if (rol === "pantalla") servidor.send(JSON.stringify({ tipo: "posts", posts: this.visibles() }));
+    if (rol === "admin") servidor.send(JSON.stringify({ tipo: "posts", posts: this.posts }));
     return new Response(null, { status: 101, webSocket: cliente });
+  }
+
+  // ---------- Muro ----------
+  private visibles() {
+    return this.posts.filter((p) => !p.oculto);
+  }
+
+  private async guardarPosts() {
+    await this.ctx.storage.put("posts", this.posts);
+    const pantalla = JSON.stringify({ tipo: "posts", posts: this.visibles() });
+    const admin = JSON.stringify({ tipo: "posts", posts: this.posts });
+    for (const ws of this.ctx.getWebSockets("pantalla")) try { ws.send(pantalla); } catch {}
+    for (const ws of this.ctx.getWebSockets("admin")) try { ws.send(admin); } catch {}
+  }
+
+  private async publicar(request: Request): Promise<Response> {
+    const responder = (status: number, cuerpo: object) => Response.json(cuerpo, { status });
+    if (Number(request.headers.get("content-length") ?? 0) > 3_000_000) return responder(413, { error: "La foto es muy pesada" });
+    if (!this.estado.muroAbierto) return responder(403, { error: "El muro está cerrado por ahora" });
+    let b: { token?: string; nombre?: string; tipo?: string; texto?: string; para?: string; foto?: string };
+    try {
+      b = await request.json();
+    } catch {
+      return responder(400, { error: "Datos inválidos" });
+    }
+    const token = String(b.token ?? "");
+    if (!/^[a-zA-Z0-9-]{16,64}$/.test(token)) return responder(400, { error: "Token inválido" });
+    const tipo = b.tipo as TipoPost;
+    if (!(tipo in LIMITES)) return responder(400, { error: "Tipo inválido" });
+    const autor = limpiarNombre(b.nombre);
+    if (autor.length < 2) return responder(400, { error: "Poné tu nombre" });
+    if (NOMBRES_PROHIBIDOS.test(autor)) return responder(400, { error: "Buen intento 😏 Poné tu nombre de verdad" });
+    const texto = String(b.texto ?? "").replace(/\r/g, "").trim().slice(0, LIMITES[tipo]);
+    const para = tipo === "gracias" ? limpiarNombre(b.para) : "";
+    if (tipo !== "foto" && texto.length < 2) return responder(400, { error: "Escribí algo para compartir" });
+
+    let datos: Uint8Array | null = null;
+    let mime = "image/jpeg";
+    if (tipo === "foto") {
+      const m = String(b.foto ?? "").match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+      if (!m) return responder(400, { error: "Elegí una foto" });
+      mime = m[1];
+      const bin = atob(m[2]);
+      if (bin.length > MAX_FOTO) return responder(413, { error: "La foto es muy pesada" });
+      datos = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    }
+
+    const ahora = Date.now();
+    if (ahora - (this.ultimoPost.get(token) ?? 0) < ESPERA_ENTRE_POSTS) {
+      return responder(429, { error: "Esperá unos segundos antes de compartir otra cosa" });
+    }
+    this.ultimoPost.set(token, ahora);
+
+    const id = ((await this.ctx.storage.get<number>("postSeq")) ?? 0) + 1;
+    await this.ctx.storage.put("postSeq", id);
+    if (datos) await this.ctx.storage.put(`foto:${id}`, { mime, datos });
+    const post: Post = { id, tipo, autor, texto, para, foto: !!datos, creado: new Date(ahora).toISOString(), oculto: false };
+    this.posts.push(post);
+    await this.guardarPosts();
+    return responder(200, { ok: true, id });
+  }
+
+  private async servirFoto(id: number): Promise<Response> {
+    const post = this.posts.find((p) => p.id === id);
+    if (!post || post.oculto || !post.foto) return new Response("No encontrada", { status: 404 });
+    const f = await this.ctx.storage.get<{ mime: string; datos: Uint8Array }>(`foto:${id}`);
+    if (!f) return new Response("No encontrada", { status: 404 });
+    return new Response(f.datos, { headers: { "content-type": f.mime, "cache-control": "public, max-age=86400" } });
+  }
+
+  /** Exporta todo el muro como JSON (requiere el PIN en la cabecera x-pin). */
+  private exportar(request: Request, url: URL): Response {
+    if (!pinCorrecto(request.headers.get("x-pin") ?? "", this.env.ADMIN_PIN)) {
+      return Response.json({ error: "PIN incorrecto" }, { status: 401 });
+    }
+    const posts = this.posts.map((p) => ({
+      ...p,
+      foto: p.foto ? `${url.origin}/sinaptic/api/foto/${p.id}` : null,
+    }));
+    return Response.json(
+      { evento: "Sinaptic Fest 2026", exportado: new Date().toISOString(), total: posts.length, posts },
+      { headers: { "content-disposition": 'attachment; filename="sinaptic-fest-muro.json"', "cache-control": "no-store" } },
+    );
   }
 
   async webSocketMessage(ws: WebSocket, mensaje: string | ArrayBuffer): Promise<void> {
@@ -157,6 +289,17 @@ export class Fiesta extends DurableObject<EnvFiesta> {
       return this.error(ws, "Mensaje inválido");
     }
     const adj = ws.deserializeAttachment() as Adjunto;
+
+    // ---------- Reacciones (no se guardan: solo vuelan por la pantalla) ----------
+    if (cmd.tipo === "reaccion") {
+      if (this.estado.modo !== "muro" || !EMOJIS.includes(cmd.emoji)) return;
+      const ahora = Date.now();
+      if (ahora - (this.ultimaReaccion.get(ws) ?? 0) < 250) return;
+      this.ultimaReaccion.set(ws, ahora);
+      const msg = JSON.stringify({ tipo: "reaccion", emoji: cmd.emoji });
+      for (const p of this.ctx.getWebSockets("pantalla")) try { p.send(msg); } catch {}
+      return;
+    }
 
     // ---------- Jugadores ----------
     if (cmd.tipo === "hola" || cmd.tipo === "unirme") {
@@ -280,8 +423,47 @@ export class Fiesta extends DurableObject<EnvFiesta> {
 
       // ---------- Mejor compañero/a ----------
       case "modo":
-        if (cmd.modo !== "sorteo" && cmd.modo !== "companero") return this.error(ws, "Modo inválido");
+        if (!MODOS.includes(cmd.modo)) return this.error(ws, "Modo inválido");
         return this.guardarYDifundir({ modo: cmd.modo });
+
+      // ---------- Muro ----------
+      case "muroAbierto":
+        return this.guardarYDifundir({ muroAbierto: Boolean(cmd.abierto) });
+
+      case "muroPausa":
+        return this.guardarYDifundir({ muroCtl: { ...e.muroCtl, pausa: Boolean(cmd.pausa) } });
+
+      case "muroSaltar":
+        return this.guardarYDifundir({ muroCtl: { ...e.muroCtl, saltar: e.muroCtl.saltar + 1 } });
+
+      case "muroDestacar": {
+        const id = Number(cmd.id);
+        if (!this.posts.some((p) => p.id === id && !p.oculto)) return this.error(ws, "Ese post no está visible");
+        return this.guardarYDifundir({ modo: "muro", muroCtl: { ...e.muroCtl, destacar: { id, n: (e.muroCtl.destacar?.n ?? 0) + 1 } } });
+      }
+
+      case "postOcultar": {
+        const id = Number(cmd.id);
+        const p = this.posts.find((x) => x.id === id);
+        if (!p) return this.error(ws, "No existe ese post");
+        p.oculto = Boolean(cmd.oculto);
+        return this.guardarPosts();
+      }
+
+      case "postBorrar": {
+        const id = Number(cmd.id);
+        if (!this.posts.some((x) => x.id === id)) return this.error(ws, "No existe ese post");
+        this.posts = this.posts.filter((x) => x.id !== id);
+        await this.ctx.storage.delete(`foto:${id}`);
+        return this.guardarPosts();
+      }
+
+      case "muroVaciar": {
+        const claves = this.posts.filter((p) => p.foto).map((p) => `foto:${p.id}`);
+        for (let i = 0; i < claves.length; i += 128) await this.ctx.storage.delete(claves.slice(i, i + 128)); // máx. 128 por llamada
+        this.posts = [];
+        return this.guardarPosts();
+      }
 
       case "compa": {
         const nominados = [...new Set((Array.isArray(cmd.nominados) ? cmd.nominados : []).map(limpiarNombre).filter((n) => n.length >= 2))].slice(0, 30);

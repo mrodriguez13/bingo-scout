@@ -1,6 +1,7 @@
 import { $, conectar, formatos, confeti, avisar, escapar, proximoPremio, candidatos } from "./efectos.js";
 import { Ruleta } from "./ruleta.js";
 import { iniciarCompa, pintarCompa } from "./compa.js";
+import { iniciarMuro, recibirPosts, controlMuro, mostrarMuro, mostrarResumen, reaccion } from "./muro-pantalla.js";
 import { activarAudio, silenciar, Musica, tick, ding, whoosh, redoble, fanfarria, teclado, anunciar } from "./sonidos.js";
 
 let estado = null;
@@ -12,6 +13,7 @@ const musica = new Musica();
 const ruleta = new Ruleta($("ruleta"));
 const URL_JUGAR = `${location.origin}/sinaptic/jugar`;
 iniciarCompa({ conSonido: () => arrancado, musica });
+iniciarMuro({ conSonido: () => arrancado });
 
 // ---------- Arranque (habilita audio) ----------
 $("btn-arrancar").addEventListener("click", () => {
@@ -33,7 +35,8 @@ $("btn-pantalla").addEventListener("click", () => {
 
 function ajustarMusica() {
   if (!arrancado || girandoId !== null) return;
-  if (estado?.modo === "companero") {
+  if (estado?.modo === "muro" || estado?.modo === "resumen") musica.iniciar("lobby");
+  else if (estado?.modo === "companero") {
     if (estado.revelacion === null) musica.iniciar("lobby");
   } else if (estado?.fase === "espera" || estado?.fase === "inscripcion") musica.iniciar("lobby");
   else musica.detener();
@@ -43,8 +46,11 @@ function ajustarMusica() {
 function render(e) {
   const anterior = estado;
   estado = e;
-  const vista = e.modo === "companero" ? "compa" : e.fase === "cerrada" ? "sorteo" : e.fase;
-  for (const f of ["espera", "inscripcion", "sorteo", "compa"]) $(`f-${f}`).hidden = vista !== f;
+  const vista = e.modo === "companero" ? "compa" : e.modo === "muro" || e.modo === "resumen" ? e.modo : e.fase === "cerrada" ? "sorteo" : e.fase;
+  for (const f of ["espera", "inscripcion", "sorteo", "compa", "muro", "resumen"]) $(`f-${f}`).hidden = vista !== f;
+  controlMuro(e.muroCtl);
+  mostrarMuro(vista === "muro");
+  mostrarResumen(vista === "resumen");
   if (e.modo !== "companero") $("compa-final").hidden = true;
   $("contador").hidden = e.participantes.length === 0;
   $("contador").textContent = `${e.participantes.length} participantes`;
@@ -290,6 +296,10 @@ document.addEventListener("visibilitychange", () => document.visibilityState ===
 // ---------- Conexión ----------
 conectar("pantalla", {
   onEstado: render,
+  onMensaje: (m) => {
+    if (m.tipo === "posts") recibirPosts(m.posts);
+    else if (m.tipo === "reaccion") reaccion(m.emoji);
+  },
   onConectado: (ok) => {
     const c = $("conexion");
     c.classList.toggle("ok", ok);

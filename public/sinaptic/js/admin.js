@@ -65,6 +65,7 @@ function render(e) {
   pintarParticipantes();
   if (!editandoPremios) pintarPremios();
   pintarCompa(anterior);
+  pintarMuroAdmin();
   habilitar();
 }
 
@@ -226,7 +227,10 @@ $("btn-reiniciar").addEventListener("click", () => {
 const sala = conectar("admin", {
   onEstado: render,
   onMensaje: (m) => {
-    if (m.tipo === "auth") {
+    if (m.tipo === "posts") {
+      postsAdmin = m.posts;
+      pintarPosts();
+    } else if (m.tipo === "auth") {
       autenticado = m.ok;
       if (m.ok) {
         try { sessionStorage.setItem("fest-pin", pin); } catch {}
@@ -252,4 +256,85 @@ const sala = conectar("admin", {
     if (!ok) autenticado = false;
     habilitar();
   },
+});
+
+// ---------- Pantalla grande y muro ----------
+let postsAdmin = [];
+const AYUDA_MODO = {
+  sorteo: "La pantalla muestra la inscripción o la ruleta, según la fase.",
+  companero: "La pantalla muestra el premio al mejor compañero/a.",
+  muro: "La pantalla va rotando lo que comparte la gente. Los celulares pueden reaccionar.",
+  resumen: "Mosaico con todo lo compartido en la jornada, desplazándose solo.",
+};
+const ICONOS = { frase: "💬", gracias: "🙏", anecdota: "📖", foto: "📸" };
+
+function pintarMuroAdmin() {
+  const e = estado;
+  for (const b of document.querySelectorAll("[data-modo]")) b.classList.toggle("activo", b.dataset.modo === e.modo);
+  $("ayuda-modo").textContent = AYUDA_MODO[e.modo] ?? "";
+  for (const b of document.querySelectorAll("[data-abierto]")) b.classList.toggle("activo", (b.dataset.abierto === "1") === e.muroAbierto);
+  $("ayuda-muro").textContent = e.muroAbierto
+    ? "Abierto: desde el celular pueden compartir frases, agradecimientos, anécdotas y fotos."
+    : "Cerrado: el botón “Compartir algo” no aparece en los celulares.";
+  $("btn-muro-pausa").textContent = e.muroCtl.pausa ? "▶ Reanudar" : "⏸ Pausar";
+}
+
+function pintarPosts() {
+  const lista = [...postsAdmin].reverse();
+  $("lista-posts").innerHTML = lista.length
+    ? lista.map((p) => {
+        const mini = p.foto && !p.oculto ? `<img class="mini" src="/sinaptic/api/foto/${p.id}" alt="" loading="lazy">` : `<span class="mini">${ICONOS[p.tipo]}</span>`;
+        const para = p.para ? `para ${escapar(p.para)} · ` : "";
+        return `<li class="${p.oculto ? "oculto" : ""}">${mini}
+          <div class="cuerpo"><strong>${escapar(p.autor)}</strong><p>${para}${escapar(p.texto || "(foto)")}</p></div>
+          <div class="acciones">
+            <button class="acc" data-destacar="${p.id}" title="Mostrar ahora" ${p.oculto ? "disabled" : ""}>★</button>
+            <button class="acc" data-ocultar="${p.id}" data-valor="${p.oculto ? 0 : 1}" title="${p.oculto ? "Mostrar" : "Ocultar"}">${p.oculto ? "🙈" : "👁"}</button>
+            <button class="acc" data-borrar="${p.id}" title="Borrar">✕</button>
+          </div></li>`;
+      }).join("")
+    : `<li class="vacia">Todavía nadie compartió nada</li>`;
+  habilitar();
+}
+
+for (const b of document.querySelectorAll("[data-abierto]")) {
+  b.addEventListener("click", () => enviar({ tipo: "muroAbierto", abierto: b.dataset.abierto === "1" }));
+}
+$("btn-muro-pausa").addEventListener("click", () => enviar({ tipo: "muroPausa", pausa: !estado?.muroCtl.pausa }));
+$("btn-muro-saltar").addEventListener("click", () => enviar({ tipo: "muroSaltar" }));
+
+$("lista-posts").addEventListener("click", (ev) => {
+  const d = ev.target.closest("[data-destacar]");
+  const o = ev.target.closest("[data-ocultar]");
+  const x = ev.target.closest("[data-borrar]");
+  if (d) {
+    enviar({ tipo: "muroDestacar", id: Number(d.dataset.destacar) });
+    avisar("Sale ahora en la pantalla ★");
+  } else if (o) {
+    enviar({ tipo: "postOcultar", id: Number(o.dataset.ocultar), oculto: o.dataset.valor === "1" });
+  } else if (x) {
+    const p = postsAdmin.find((q) => q.id === Number(x.dataset.borrar));
+    if (p && confirm(`¿Borrar el post de ${p.autor}? No se puede deshacer (ocultarlo sí).`)) enviar({ tipo: "postBorrar", id: p.id });
+  }
+});
+
+$("btn-exportar").addEventListener("click", async () => {
+  try {
+    const r = await fetch("/sinaptic/api/muro.json", { headers: { "x-pin": pin } });
+    if (!r.ok) throw new Error("No se pudo descargar");
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `sinaptic-fest-muro-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  } catch (e) {
+    avisar(e.message, "error");
+  }
+});
+
+$("btn-vaciar-muro").addEventListener("click", () => {
+  if (!confirm(`¿Vaciar el muro? Se borran ${postsAdmin.length} posts y sus fotos.`)) return;
+  if (!confirm("¿Descargaste el JSON? Esto no se puede deshacer.")) return;
+  enviar({ tipo: "muroVaciar" });
 });

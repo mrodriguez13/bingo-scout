@@ -1,5 +1,6 @@
 import { $, conectar, formatos, confeti, avisar } from "./efectos.js";
 import { activarAudio, audioActivo, tick, tadaa, error as sonidoError } from "./sonidos.js";
+import { iniciarMuroCelular, actualizarMuroCelular } from "./muro-celular.js";
 
 // ---------- Identidad del celular ----------
 let token = null;
@@ -148,6 +149,7 @@ setInterval(() => { $("espera-linea").textContent = ESPERAS[++iEspera % ESPERAS.
 function alEstado(e) {
   const primero = estado === null;
   estado = e;
+  actualizarMuroCelular(e);
   // ¿Me borraron?
   if (yo && !e.participantes.some((p) => p.numero === yo.numero)) yo = null;
   else if (yo) yo = e.participantes.find((p) => p.numero === yo.numero);
@@ -199,4 +201,10 @@ const sala = conectar("jugador", {
     c.textContent = ok ? "en vivo" : "reconectando…";
     if (ok) sala.enviar({ tipo: "hola", token });
   },
+});
+
+iniciarMuroCelular({
+  token,
+  nombre: () => yo?.nombre ?? "",
+  enviar: (cmd) => sala.enviar(cmd),
 });
