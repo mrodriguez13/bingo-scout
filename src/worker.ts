@@ -1,7 +1,11 @@
 import { DurableObject } from "cloudflare:workers";
+import { Fiesta } from "./fiesta";
+
+export { Fiesta };
 
 export interface Env {
   SALA: DurableObjectNamespace<Sala>;
+  FIESTA: DurableObjectNamespace<Fiesta>;
   ADMIN_PIN?: string;
 }
 
@@ -207,6 +211,11 @@ function pinCorrecto(recibido: string, esperado: string | undefined): boolean {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
+    // Sinaptic Fest (sorteo): sala propia, separada del bingo
+    if (pathname === "/sinaptic/ws" || pathname === "/sinaptic/api/estado") {
+      const fiesta = env.FIESTA.get(env.FIESTA.idFromName("sinaptic-fest"));
+      return fiesta.fetch(request);
+    }
     if (pathname === "/ws" || pathname === "/api/estado") {
       const sala = env.SALA.get(env.SALA.idFromName("principal"));
       return sala.fetch(request);

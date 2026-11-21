@@ -1,0 +1,120 @@
+/* ====== Sinaptic Fest — estilos compartidos ====== */
+:root {
+  --noche: #0B0E2E;
+  --noche-2: #151948;
+  --azul-osc: #21266D;
+  --azul-texto: #2B328F;
+  --azul: #333BA8;
+  --teal: #00909E;
+  --teal-osc: #006C76;
+  --lavanda: #7C82E8;
+  --cian: #4FD1DC;
+  --blanco: #FFFFFF;
+  --suave: #B9BCF5;
+  --peligro: #E5484D;
+
+  --f-titulo: "Ubuntu", system-ui, sans-serif;
+  --f-cuerpo: "Ubuntu", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --brillo: 0 0 24px rgba(79, 209, 220, .45);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  font-family: var(--f-cuerpo);
+  color: var(--blanco);
+  background-color: var(--noche);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 15% 0%, rgba(51, 59, 168, .55), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(0, 144, 158, .35), transparent 70%),
+    linear-gradient(rgba(124, 130, 232, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 130, 232, .07) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; cursor: pointer; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.mono { font-family: var(--f-mono); }
+
+/* ---------- Marca ---------- */
+.logo { height: 2.2em; width: auto; display: block; }
+.gradiente {
+  background: linear-gradient(90deg, var(--lavanda), var(--cian));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  border: 0; border-radius: 12px; padding: .8em 1.2em;
+  font-weight: 700; color: var(--blanco);
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(185, 188, 245, .25);
+  transition: transform .08s, box-shadow .2s, background .2s;
+}
+.btn:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }
+.btn:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.btn-primario {
+  background: linear-gradient(135deg, var(--azul), var(--teal));
+  border-color: transparent;
+  box-shadow: 0 6px 24px rgba(0, 144, 158, .35);
+}
+.btn-primario:hover:not(:disabled) { background: linear-gradient(135deg, #3d46c4, #00a5b4); box-shadow: 0 6px 30px rgba(79, 209, 220, .5); }
+.btn-peligro { background: rgba(229, 72, 77, .15); border-color: rgba(229, 72, 77, .5); color: #ffb4b6; }
+
+/* ---------- Tarjetas ---------- */
+.tarjeta {
+  background: linear-gradient(180deg, rgba(33, 38, 109, .75), rgba(21, 25, 72, .85));
+  border: 1px solid rgba(124, 130, 232, .28);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
+  backdrop-filter: blur(6px);
+}
+
+input, select {
+  font: inherit; color: var(--blanco);
+  background: rgba(11, 14, 46, .7);
+  border: 1px solid rgba(124, 130, 232, .4);
+  border-radius: 12px; padding: .75em .9em;
+}
+input:focus, select:focus { outline: 2px solid var(--cian); outline-offset: 1px; }
+input::placeholder { color: rgba(185, 188, 245, .5); }
+
+/* ---------- Avisos ---------- */
+.aviso {
+  position: fixed; left: 50%; top: 18px; z-index: 60;
+  transform: translate(-50%, -150%); opacity: 0;
+  background: var(--noche-2); color: var(--blanco);
+  border: 1px solid var(--cian); box-shadow: var(--brillo);
+  padding: .7em 1.2em; border-radius: 999px; font-weight: 500;
+  max-width: calc(100vw - 32px); text-align: center;
+  transition: transform .35s cubic-bezier(.2, 1.4, .4, 1), opacity .25s;
+}
+.aviso.visible { transform: translate(-50%, 0); opacity: 1; }
+.aviso.error { border-color: var(--peligro); box-shadow: 0 0 24px rgba(229, 72, 77, .4); }
+
+/* ---------- Número friki ---------- */
+.formatos { font-family: var(--f-mono); color: var(--cian); letter-spacing: .02em; }
+.formatos span + span::before { content: " · "; color: var(--suave); }
+
+/* ---------- Pie ---------- */
+.pie-fest {
+  display: flex; align-items: center; justify-content: center; gap: .5em;
+  padding: 12px; font-size: .8em; color: var(--suave);
+}
+.pie-fest img { height: 1.6em; width: auto; }
+
+@keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes latir { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+@keyframes entrar { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes parpadeo { 50% { opacity: 0; } }
+@keyframes arcoiris { to { filter: hue-rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

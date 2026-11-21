@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sinaptic Fest · Pantalla</title>
+  <meta name="theme-color" content="#0B0E2E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23333BA8'/><text x='50' y='68' font-size='54' text-anchor='middle' fill='white' font-family='monospace' font-weight='bold'>42</text></svg>">
+  <link rel="stylesheet" href="/sinaptic/css/fest.css">
+  <link rel="stylesheet" href="/sinaptic/css/pantalla.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="pantalla">
+  <header class="barra">
+    <img class="logo" src="/img/sinaptic.png" alt="Sinaptic" width="464" height="94">
+    <div class="titulo">Sinaptic <span class="gradiente">Fest</span> <span class="anio mono">2026</span></div>
+    <span class="espacio"></span>
+    <span class="contador mono" id="contador" hidden></span>
+    <span class="estado" id="conexion">conectando…</span>
+    <button class="icono" id="btn-sonido" title="Sonido">🔊</button>
+    <button class="icono" id="btn-pantalla" title="Pantalla completa">⛶</button>
+  </header>
+
+  <!-- Espera -->
+  <main id="f-espera" class="fase" hidden>
+    <div class="hero">
+      <div class="hero-sub mono">fin de año + aniversario</div>
+      <h1 class="hero-titulo">Sinaptic <span class="gradiente">Fest</span></h1>
+      <p class="terminal mono"><span class="prompt">$</span> <span id="espera-linea"></span><span class="cursor">▋</span></p>
+    </div>
+  </main>
+
+  <!-- Inscripción -->
+  <main id="f-inscripcion" class="fase inscripcion" hidden>
+    <section class="tarjeta qr-tarjeta">
+      <h2>Escaneá y reclamá<br>tu <span class="gradiente">número friki</span></h2>
+      <div class="qr" id="qr"></div>
+      <div class="url mono" id="url"></div>
+      <p class="pasos">1. Escaneá &nbsp; 2. Poné tu nombre &nbsp; 3. ¡Girá!</p>
+    </section>
+    <section class="muro-zona">
+      <div class="muro-titulo">
+        <span class="mono"><span class="punto"></span> <strong id="cant-nodos">0</strong> nodos conectados</span>
+      </div>
+      <div class="muro" id="muro"></div>
+    </section>
+  </main>
+
+  <!-- Sorteo -->
+  <main id="f-sorteo" class="fase sorteo" hidden>
+    <section class="ruleta-zona">
+      <div class="premio-actual" id="premio-actual"></div>
+      <div class="ruleta-marco" id="ruleta-marco">
+        <div class="puntero"></div>
+        <canvas id="ruleta"></canvas>
+        <div class="ruleta-centro mono" id="ruleta-centro">?</div>
+      </div>
+      <p class="terminal mono" id="linea-sorteo">&nbsp;</p>
+    </section>
+    <aside class="tarjeta ganadores-zona">
+      <h2>🏆 Ganadores</h2>
+      <ol class="ganadores" id="ganadores"></ol>
+      <p class="fair mono">sorteo 100% al azar · crypto.getRandomValues() · sin trampa</p>
+    </aside>
+  </main>
+
+  <!-- Revelación del ganador -->
+  <div class="revelacion" id="revelacion" hidden>
+    <div class="rev-tarjeta">
+      <div class="rev-premio" id="rev-premio"></div>
+      <div class="rev-gano mono">¡GANÓ EL</div>
+      <div class="rev-numero mono" id="rev-numero"></div>
+      <div class="rev-nombre" id="rev-nombre"></div>
+      <div class="formatos rev-formatos" id="rev-formatos"></div>
+      <blockquote class="rev-frase" id="rev-frase"></blockquote>
+    </div>
+  </div>
+
+  <!-- Intro tipo terminal -->
+  <div class="intro" id="intro" hidden>
+    <pre class="mono" id="intro-texto"></pre>
+  </div>
+
+  <!-- Activar sonido (los navegadores lo exigen) -->
+  <div class="arranque" id="arranque">
+    <button class="btn btn-primario" id="btn-arrancar">▶ Arrancar el show</button>
+    <p>Activa la música y los sonidos en esta pantalla</p>
+  </div>
+
+  <footer class="pie-fest">
+    <span>Desarrollado por</span>
+    <img src="/img/sinaptic.png" alt="Sinaptic" width="464" height="94">
+  </footer>
+
+  <div class="aviso" id="aviso"></div>
+  <script type="module" src="/sinaptic/js/pantalla.js"></script>
+</body>
+</html>

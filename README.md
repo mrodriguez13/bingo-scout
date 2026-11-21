@@ -62,3 +62,13 @@ npm run dev
 - Usá un PIN de 6 dígitos o más. Cada conexión tiene 5 intentos.
 - Cambiar entre 70 y 90 arranca una partida nueva.
 - Colores y tipografías: variables en `public/css/scout.css` (`--bosque`, `--caqui`, `--madera`, `--mostaza`…).
+
+## Sinaptic Fest (`/sinaptic`)
+
+Sorteo para la fiesta de fin de año de Sinaptic, en el mismo sitio y con su propia sala:
+
+- **`/sinaptic`** — pantalla grande: bienvenida, QR + muro de inscriptos en vivo, ruleta del sorteo con música, redoble, confeti y voz. Tocar *Arrancar el show* para habilitar el sonido.
+- **`/sinaptic/jugar`** — celular de cada invitado: pone su nombre, gira el tragamonedas y recibe un número friki único con su frase.
+- **`/sinaptic/admin`** — control con el mismo PIN del bingo: abrir/cerrar inscripción, sortear cada premio, deshacer, editar premios, agregar o quitar participantes.
+
+Los números y frases están en `src/frases.ts`. El ganador se elige en el servidor con `crypto.getRandomValues()`.

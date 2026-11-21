@@ -1,10 +1,11 @@
 // Conexión en tiempo real con la sala (WebSocket con reconexión automática).
 export class ConexionSala {
   /**
-   * @param {{ rol: "tablero" | "admin", onEstado: (e) => void, onMensaje?: (m) => void, onConectado?: (ok: boolean) => void }} opts
+   * @param {{ rol: string, ruta?: string, onEstado: (e) => void, onMensaje?: (m) => void, onConectado?: (ok: boolean) => void }} opts
    */
-  constructor({ rol, onEstado, onMensaje, onConectado }) {
+  constructor({ rol, ruta = "/ws", onEstado, onMensaje, onConectado }) {
     this.rol = rol;
+    this.ruta = ruta;
     this.onEstado = onEstado;
     this.onMensaje = onMensaje ?? (() => {});
     this.onConectado = onConectado ?? (() => {});
@@ -24,7 +25,7 @@ export class ConexionSala {
   conectar() {
     clearTimeout(this.reintento);
     const proto = location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(`${proto}://${location.host}/ws?rol=${this.rol}`);
+    const ws = new WebSocket(`${proto}://${location.host}${this.ruta}?rol=${this.rol}`);
     this.ws = ws;
 
     ws.addEventListener("open", () => {

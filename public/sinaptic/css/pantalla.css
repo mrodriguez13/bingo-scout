@@ -1,0 +1,123 @@
+/* ====== Pantalla grande (proyector / TV) ====== */
+body.pantalla {
+  display: flex; flex-direction: column; height: 100dvh; overflow: hidden;
+  font-size: clamp(14px, 1.15vmin + 7px, 28px);
+}
+
+.barra { display: flex; align-items: center; gap: .8em; padding: .7em 1.2em; }
+.barra .logo { height: 1.8em; }
+.titulo { font-family: var(--f-titulo); font-weight: 700; font-size: 1.35em; padding-left: .8em; border-left: 1px solid rgba(185, 188, 245, .3); }
+.anio { font-size: .6em; color: var(--suave); font-weight: 500; vertical-align: middle; }
+.espacio { flex: 1; }
+.contador { color: var(--cian); background: rgba(0, 144, 158, .15); border: 1px solid rgba(79, 209, 220, .4); padding: .25em .8em; border-radius: 999px; font-size: .85em; }
+.estado { font-family: var(--f-mono); font-size: .7em; color: var(--suave); display: inline-flex; align-items: center; gap: .4em; }
+.estado::before { content: ""; width: .6em; height: .6em; border-radius: 50%; background: var(--peligro); }
+.estado.ok::before { background: #3DDC97; box-shadow: 0 0 8px #3DDC97; }
+.icono { background: rgba(255, 255, 255, .06); border: 1px solid rgba(185, 188, 245, .25); color: var(--blanco); border-radius: .5em; padding: .2em .5em; font-size: .9em; }
+
+.fase { flex: 1; min-height: 0; animation: entrar .6s ease both; }
+.pie-fest { padding: .3em; font-size: .7em; }
+
+.terminal { color: var(--cian); font-size: 1em; min-height: 1.4em; }
+.prompt { color: var(--lavanda); }
+.cursor { animation: parpadeo 1s steps(1) infinite; margin-left: 2px; }
+
+/* ---------- Espera ---------- */
+#f-espera { display: grid; place-items: center; text-align: center; }
+.hero-sub { text-transform: uppercase; letter-spacing: .35em; color: var(--suave); font-size: .9em; }
+.hero-titulo { font-family: var(--f-titulo); font-size: clamp(56px, 13vmin, 200px); margin: .1em 0 .2em; line-height: 1; letter-spacing: -.02em; animation: latir 4s ease-in-out infinite; }
+
+/* ---------- Inscripción ---------- */
+.inscripcion { display: grid; grid-template-columns: minmax(0, 30%) minmax(0, 1fr); gap: 1.4em; padding: .4em 1.4em 0; }
+.qr-tarjeta { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .7em; text-align: center; }
+.qr-tarjeta h2 { font-family: var(--f-titulo); margin: 0; font-size: 1.5em; line-height: 1.15; }
+.qr { background: #fff; padding: .7em; border-radius: 16px; box-shadow: 0 0 0 4px rgba(79, 209, 220, .5), 0 0 50px rgba(79, 209, 220, .35); }
+.qr img, .qr canvas { display: block; width: min(24vw, 46vh) !important; height: auto !important; image-rendering: pixelated; }
+.url { color: var(--cian); font-size: .9em; word-break: break-all; }
+.pasos { color: var(--suave); margin: 0; font-size: .85em; }
+
+.muro-zona { display: flex; flex-direction: column; min-height: 0; }
+.muro-titulo { font-size: 1.1em; color: var(--suave); padding: .2em 0 .6em; }
+.muro-titulo strong { color: var(--blanco); font-size: 1.3em; }
+.punto { display: inline-block; width: .6em; height: .6em; border-radius: 50%; background: #3DDC97; box-shadow: 0 0 10px #3DDC97; animation: parpadeo 1.6s steps(1) infinite; }
+.muro { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-wrap: wrap; align-content: flex-start; gap: .55em; }
+.chip {
+  display: inline-flex; align-items: center; gap: .5em;
+  padding: .45em .9em .45em .45em; border-radius: 999px;
+  background: rgba(33, 38, 109, .8); border: 1px solid rgba(124, 130, 232, .35);
+  font-size: 1em; animation: entrar .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.chip .num { font-family: var(--f-mono); font-weight: 700; background: linear-gradient(135deg, var(--azul), var(--teal)); padding: .15em .55em; border-radius: 999px; min-width: 2.4em; text-align: center; }
+.chip.nuevo { border-color: var(--cian); box-shadow: var(--brillo); }
+.vacio { color: var(--suave); font-size: 1.2em; margin-top: 1em; }
+
+/* ---------- Sorteo ---------- */
+.sorteo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 28%); gap: 1.4em; padding: .2em 1.4em 0; }
+.ruleta-zona { display: flex; flex-direction: column; align-items: center; min-height: 0; }
+.premio-actual { font-family: var(--f-titulo); font-size: 1.6em; font-weight: 700; text-align: center; min-height: 1.3em; }
+.premio-actual .de { color: var(--suave); font-weight: 400; font-size: .6em; display: block; font-family: var(--f-mono); letter-spacing: .1em; }
+.ruleta-marco { position: relative; flex: 1; min-height: 0; aspect-ratio: 1; max-width: 100%; margin: .4em 0; }
+.ruleta-marco canvas { width: 100%; height: 100%; display: block; }
+.puntero {
+  position: absolute; top: -.2em; left: 50%; transform: translateX(-50%); z-index: 2;
+  width: 0; height: 0; border-left: 1.1em solid transparent; border-right: 1.1em solid transparent;
+  border-top: 2em solid #fff; filter: drop-shadow(0 0 10px var(--cian)) drop-shadow(0 3px 0 rgba(0, 0, 0, .4));
+}
+.ruleta-centro {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  font-weight: 700; font-size: 2.2em; color: var(--cian); text-shadow: 0 0 16px var(--cian); pointer-events: none;
+}
+.ruleta-marco.girando .ruleta-centro { animation: latir .5s ease-in-out infinite; }
+body.arcoiris .ruleta-marco canvas { animation: arcoiris 2s linear infinite; }
+
+.ganadores-zona { display: flex; flex-direction: column; min-height: 0; }
+.ganadores-zona h2 { font-family: var(--f-titulo); margin: 0 0 .5em; font-size: 1.3em; }
+.ganadores { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: .45em; }
+.ganadores li { display: grid; grid-template-columns: auto 1fr; gap: 0 .6em; padding: .5em .7em; border-radius: 12px; background: rgba(11, 14, 46, .5); border: 1px solid rgba(124, 130, 232, .2); animation: entrar .5s ease both; }
+.ganadores .num { font-family: var(--f-mono); font-weight: 700; color: var(--cian); grid-row: span 2; align-self: center; font-size: 1.3em; min-width: 2.6em; }
+.ganadores .nom { font-weight: 700; }
+.ganadores .pre { color: var(--suave); font-size: .8em; }
+.ganadores .pendiente { opacity: .45; }
+.fair { color: var(--suave); font-size: .65em; margin: .8em 0 0; text-align: center; opacity: .8; }
+
+/* ---------- Revelación ---------- */
+.revelacion {
+  position: fixed; inset: 0; z-index: 40; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgba(51, 59, 168, .6), rgba(11, 14, 46, .94) 65%);
+  animation: entrar .4s ease both; cursor: pointer;
+}
+.rev-tarjeta { text-align: center; max-width: 80vw; }
+.rev-premio { display: inline-block; font-size: 1.4em; font-weight: 700; padding: .35em 1em; border-radius: 999px; background: linear-gradient(135deg, var(--azul), var(--teal)); box-shadow: var(--brillo); }
+.rev-gano { margin-top: .8em; font-size: 1.6em; letter-spacing: .3em; color: var(--suave); }
+.rev-numero {
+  font-size: clamp(120px, 30vmin, 420px); font-weight: 700; line-height: .95;
+  background: linear-gradient(180deg, #fff, var(--cian)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 40px rgba(79, 209, 220, .6));
+  animation: golpe .9s cubic-bezier(.2, 1.7, .4, 1) both;
+}
+.rev-nombre { font-family: var(--f-titulo); font-size: clamp(36px, 7vmin, 110px); font-weight: 700; animation: entrar .6s .5s ease both; }
+.rev-formatos { font-size: 1.2em; margin-top: .3em; animation: entrar .6s .8s ease both; }
+.rev-frase { margin: 1em auto 0; max-width: 32em; font-size: 1.4em; font-style: italic; color: rgba(255, 255, 255, .9); animation: entrar .6s 1.1s ease both; }
+@keyframes golpe { from { transform: scale(3); opacity: 0; filter: blur(10px); } to { transform: none; opacity: 1; } }
+
+/* ---------- Intro terminal ---------- */
+.intro { position: fixed; inset: 0; z-index: 45; background: rgba(5, 7, 24, .97); display: grid; place-items: center; }
+.intro pre { color: var(--cian); font-size: 1.25em; line-height: 1.6; white-space: pre-wrap; max-width: 90vw; margin: 0; text-shadow: 0 0 10px rgba(79, 209, 220, .5); }
+.intro .ok { color: #3DDC97; }
+.intro .lav { color: var(--lavanda); }
+
+/* ---------- Arranque ---------- */
+.arranque { position: fixed; inset: 0; z-index: 70; display: grid; place-content: center; justify-items: center; gap: .8em; background: rgba(5, 7, 24, .85); backdrop-filter: blur(6px); }
+.arranque .btn { font-size: 1.6em; padding: .8em 1.6em; animation: latir 1.6s ease-in-out infinite; }
+.arranque p { color: var(--suave); margin: 0; }
+
+/* ---------- Pantallas angostas ---------- */
+@media (max-aspect-ratio: 1/1) {
+  body.pantalla { overflow: auto; height: auto; min-height: 100dvh; font-size: 15px; }
+  .barra { flex-wrap: wrap; }
+  .titulo { display: none; }
+  .inscripcion, .sorteo { grid-template-columns: 1fr; padding: 16px; }
+  .qr img, .qr canvas { width: min(60vw, 280px) !important; }
+  .ruleta-marco { width: 100%; flex: none; }
+  .muro { overflow: visible; }
+}
