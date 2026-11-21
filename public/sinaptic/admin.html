@@ -57,6 +57,33 @@
         <label class="check"><input type="checkbox" id="chk-repetir"> Un ganador puede volver a ganar</label>
       </section>
 
+      <section class="tarjeta compa-admin">
+        <h2>🏅 Mejor compañero/a</h2>
+        <div class="segmentado dos" id="modos">
+          <button type="button" data-modo="sorteo">🎰 Sorteo</button>
+          <button type="button" data-modo="companero">🏅 Premio</button>
+        </div>
+        <p class="ayuda">Elegí qué muestra la pantalla grande. En “Premio” aparecen los nominados esperando la revelación.</p>
+        <button class="btn btn-primario btn-girar" id="btn-revelar">🏆 ¡Revelar ganador/a!</button>
+        <button class="btn" id="btn-preparar">⟲ Volver a los nominados</button>
+        <p class="ayuda" id="ayuda-compa"></p>
+
+        <details>
+          <summary><strong>Editar nominados y ganador/a</strong></summary>
+          <form id="form-compa" class="form-compa">
+            <label for="compa-nominados">Nominados (uno por línea)</label>
+            <textarea id="compa-nominados" rows="8"></textarea>
+            <label for="compa-ganadora">Ganador/a (según la encuesta)</label>
+            <select id="compa-ganadora"></select>
+            <label for="compa-titulo">Título del premio</label>
+            <input id="compa-titulo" maxlength="60">
+            <label for="compa-motivos">Motivos (uno por línea, pueden empezar con un emoji)</label>
+            <textarea id="compa-motivos" rows="4"></textarea>
+            <button class="btn btn-primario" type="submit">Guardar</button>
+          </form>
+        </details>
+      </section>
+
       <section class="tarjeta">
         <h2>🏆 Ganadores</h2>
         <ol class="lista" id="ganadores"></ol>

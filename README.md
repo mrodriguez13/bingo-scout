@@ -71,4 +71,6 @@ Sorteo para la fiesta de fin de año de Sinaptic, en el mismo sitio y con su pro
 - **`/sinaptic/jugar`** — celular de cada invitado: pone su nombre, gira el tragamonedas y recibe un número friki único con su frase.
 - **`/sinaptic/admin`** — control con el mismo PIN del bingo: abrir/cerrar inscripción, sortear cada premio, deshacer, editar premios, agregar o quitar participantes.
 
+- **Premio al mejor compañero/a** — desde el control, el botón *Premio* cambia la pantalla grande a los nominados y *¡Revelar ganador/a!* lanza el show: terminal, reflector que salta entre nombres, eliminación con efecto glitch (orden al azar, no se muestran votos) y la revelación con los motivos como "logros desbloqueados". Nominados, ganador/a, título y motivos se editan desde el control; el resultado sale de la encuesta, la animación es puro show.
+
 Los números y frases están en `src/frases.ts`. El ganador se elige en el servidor con `crypto.getRandomValues()`.

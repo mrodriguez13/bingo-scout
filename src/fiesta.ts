@@ -28,7 +28,18 @@ interface Giro {
   duracion: number; // ms
 }
 
+/** Premio al mejor compañero/a: el resultado viene de la encuesta; la animación es puro show. */
+interface PremioCompa {
+  nominados: string[];
+  ganadora: string;
+  titulo: string;
+  motivos: string[];
+}
+
 export interface EstadoFiesta {
+  modo: "sorteo" | "companero"; // qué muestra la pantalla grande
+  compa: PremioCompa;
+  revelacion: number | null;    // id del último show de revelación (null = mostrar nominados)
   fase: Fase;
   participantes: Participante[];
   premios: string[];
@@ -50,7 +61,11 @@ type Comando =
   | { tipo: "sortear"; premioIdx: number }
   | { tipo: "deshacerGanador" }
   | { tipo: "permitirRepetir"; permitir: boolean }
-  | { tipo: "reiniciar" };
+  | { tipo: "reiniciar" }
+  | { tipo: "modo"; modo: "sorteo" | "companero" }
+  | { tipo: "compa"; nominados: string[]; ganadora: string; titulo: string; motivos: string[] }
+  | { tipo: "revelarCompa" }
+  | { tipo: "prepararCompa" };
 
 type Rol = "pantalla" | "jugador" | "admin";
 interface Adjunto {
@@ -64,7 +79,21 @@ const DURACION_GIRO = 13000;
 const MAX_INTENTOS_PIN = 5;
 const NOMBRES_PROHIBIDOS = /^(admin|root|sudo|administrador|null|undefined|test|ganador)$/i;
 
-const estadoInicial = (premios?: string[]): EstadoFiesta => ({
+const COMPA_INICIAL: PremioCompa = {
+  nominados: ["Sofía", "Belen", "Carina", "Eva", "Luciana", "Gonzalo", "Ciro", "Juani", "Leonel", "Luca", "Mauri"],
+  ganadora: "Sofía",
+  titulo: "Mejor Compañera Sinaptic 2026",
+  motivos: [
+    "💡 Comparte conocimiento y hace crecer al equipo",
+    "🤝 Siempre está dispuesta a brindar ayuda",
+    "🚀 Tiene un compromiso excepcional",
+  ],
+};
+
+const estadoInicial = (premios?: string[], compa?: PremioCompa): EstadoFiesta => ({
+  modo: "sorteo",
+  compa: compa ?? COMPA_INICIAL,
+  revelacion: null,
   fase: "espera",
   participantes: [],
   premios: premios ?? Array.from({ length: CANT_PREMIOS }, (_, i) => `Premio ${i + 1}`),
@@ -96,7 +125,8 @@ export class Fiesta extends DurableObject<EnvFiesta> {
     super(ctx, env);
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong"));
     ctx.blockConcurrencyWhile(async () => {
-      this.estado = (await ctx.storage.get<EstadoFiesta>("estado")) ?? estadoInicial();
+      // completar campos nuevos si el estado guardado es de una versión anterior
+      this.estado = { ...estadoInicial(), ...((await ctx.storage.get<EstadoFiesta>("estado")) ?? {}) };
       this.tokens = (await ctx.storage.get<Record<string, number>>("tokens")) ?? {};
     });
   }
@@ -246,7 +276,29 @@ export class Fiesta extends DurableObject<EnvFiesta> {
         this.tokens = {};
         this.giroHasta = 0;
         await this.ctx.storage.put("tokens", this.tokens);
-        return this.guardarYDifundir({ ...estadoInicial(e.premios) });
+        return this.guardarYDifundir({ ...estadoInicial(e.premios, e.compa) });
+
+      // ---------- Mejor compañero/a ----------
+      case "modo":
+        if (cmd.modo !== "sorteo" && cmd.modo !== "companero") return this.error(ws, "Modo inválido");
+        return this.guardarYDifundir({ modo: cmd.modo });
+
+      case "compa": {
+        const nominados = [...new Set((Array.isArray(cmd.nominados) ? cmd.nominados : []).map(limpiarNombre).filter((n) => n.length >= 2))].slice(0, 30);
+        const ganadora = limpiarNombre(cmd.ganadora);
+        if (ganadora.length < 2) return this.error(ws, "Elegí quién gana");
+        if (!nominados.includes(ganadora)) nominados.unshift(ganadora);
+        if (nominados.length < 2) return this.error(ws, "Tiene que haber al menos 2 nominados");
+        const titulo = String(cmd.titulo ?? "").trim().slice(0, 60) || COMPA_INICIAL.titulo;
+        const motivos = (Array.isArray(cmd.motivos) ? cmd.motivos : []).map((m) => String(m ?? "").trim().slice(0, 100)).filter(Boolean).slice(0, 6);
+        return this.guardarYDifundir({ compa: { nominados, ganadora, titulo, motivos } });
+      }
+
+      case "revelarCompa":
+        return this.guardarYDifundir({ modo: "companero", revelacion: (e.revelacion ?? 0) + 1 });
+
+      case "prepararCompa":
+        return this.guardarYDifundir({ modo: "companero", revelacion: null });
 
       default:
         return this.error(ws, "Comando desconocido");

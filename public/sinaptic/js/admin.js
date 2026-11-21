@@ -6,6 +6,7 @@ let autenticado = false;
 let pin = "";
 let giroHasta = 0;
 let editandoPremios = false;
+let editandoCompa = false;
 try { pin = sessionStorage.getItem("fest-pin") ?? ""; } catch {}
 
 // ---------- Ingreso ----------
@@ -63,6 +64,7 @@ function render(e) {
 
   pintarParticipantes();
   if (!editandoPremios) pintarPremios();
+  pintarCompa(anterior);
   habilitar();
 }
 
@@ -100,6 +102,50 @@ function habilitar() {
     : `${quedan} números en la ruleta` + (estado.fase !== "cerrada" ? " · al girar se cierra la inscripción" : "");
 }
 setInterval(habilitar, 500);
+
+// ---------- Mejor compañero/a ----------
+function pintarCompa(anterior) {
+  const e = estado;
+  for (const b of document.querySelectorAll("[data-modo]")) b.classList.toggle("activo", b.dataset.modo === e.modo);
+  $("ayuda-compa").textContent = e.modo !== "companero"
+    ? "La pantalla está en el sorteo. Al revelar, cambia sola al premio."
+    : e.revelacion === null
+      ? `Nominados en pantalla. Ganador/a cargado/a: ${e.compa.ganadora}.`
+      : `Revelado: ${e.compa.ganadora} 🏆 (podés repetir el show cuando quieras).`;
+  if (editandoCompa && JSON.stringify(anterior?.compa) === JSON.stringify(e.compa)) return;
+  editandoCompa = false;
+  $("compa-nominados").value = e.compa.nominados.join("\n");
+  $("compa-titulo").value = e.compa.titulo;
+  $("compa-motivos").value = e.compa.motivos.join("\n");
+  llenarGanadora(e.compa.nominados, e.compa.ganadora);
+}
+
+const lineas = (txt) => txt.split("\n").map((l) => l.trim()).filter(Boolean);
+function llenarGanadora(nominados, elegida) {
+  $("compa-ganadora").innerHTML = nominados.map((n) => `<option ${n === elegida ? "selected" : ""}>${escapar(n)}</option>`).join("");
+}
+$("form-compa").addEventListener("input", (ev) => {
+  editandoCompa = true;
+  if (ev.target.id === "compa-nominados") llenarGanadora(lineas(ev.target.value), $("compa-ganadora").value);
+});
+$("form-compa").addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  const nominados = lineas($("compa-nominados").value);
+  if (nominados.length < 2) return avisar("Tiene que haber al menos 2 nominados", "error");
+  enviar({ tipo: "compa", nominados, ganadora: $("compa-ganadora").value, titulo: $("compa-titulo").value, motivos: lineas($("compa-motivos").value) });
+  editandoCompa = false;
+  avisar("Premio guardado 🏅");
+});
+for (const b of document.querySelectorAll("[data-modo]")) {
+  b.addEventListener("click", () => b.dataset.modo !== estado?.modo && enviar({ tipo: "modo", modo: b.dataset.modo }));
+}
+$("btn-revelar").addEventListener("click", () => {
+  if (editandoCompa) return avisar("Guardá los cambios del premio antes de revelar", "error");
+  if (estado?.revelacion !== null && !confirm("El premio ya se reveló. ¿Repetir el show?")) return;
+  enviar({ tipo: "revelarCompa" });
+  navigator.vibrate?.(40);
+});
+$("btn-preparar").addEventListener("click", () => enviar({ tipo: "prepararCompa" }));
 
 // ---------- Acciones ----------
 for (const b of document.querySelectorAll("[data-fase]")) {

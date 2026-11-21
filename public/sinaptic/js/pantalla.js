@@ -1,5 +1,6 @@
 import { $, conectar, formatos, confeti, avisar, escapar, proximoPremio, candidatos } from "./efectos.js";
 import { Ruleta } from "./ruleta.js";
+import { iniciarCompa, pintarCompa } from "./compa.js";
 import { activarAudio, silenciar, Musica, tick, ding, whoosh, redoble, fanfarria, teclado, anunciar } from "./sonidos.js";
 
 let estado = null;
@@ -10,6 +11,7 @@ let tRevelacion;
 const musica = new Musica();
 const ruleta = new Ruleta($("ruleta"));
 const URL_JUGAR = `${location.origin}/sinaptic/jugar`;
+iniciarCompa({ conSonido: () => arrancado, musica });
 
 // ---------- Arranque (habilita audio) ----------
 $("btn-arrancar").addEventListener("click", () => {
@@ -31,7 +33,9 @@ $("btn-pantalla").addEventListener("click", () => {
 
 function ajustarMusica() {
   if (!arrancado || girandoId !== null) return;
-  if (estado?.fase === "espera" || estado?.fase === "inscripcion") musica.iniciar("lobby");
+  if (estado?.modo === "companero") {
+    if (estado.revelacion === null) musica.iniciar("lobby");
+  } else if (estado?.fase === "espera" || estado?.fase === "inscripcion") musica.iniciar("lobby");
   else musica.detener();
 }
 
@@ -39,19 +43,21 @@ function ajustarMusica() {
 function render(e) {
   const anterior = estado;
   estado = e;
-  for (const f of ["espera", "inscripcion", "sorteo"]) {
-    $(`f-${f}`).hidden = (e.fase === "cerrada" ? "sorteo" : e.fase) !== f;
-  }
+  const vista = e.modo === "companero" ? "compa" : e.fase === "cerrada" ? "sorteo" : e.fase;
+  for (const f of ["espera", "inscripcion", "sorteo", "compa"]) $(`f-${f}`).hidden = vista !== f;
+  if (e.modo !== "companero") $("compa-final").hidden = true;
   $("contador").hidden = e.participantes.length === 0;
   $("contador").textContent = `${e.participantes.length} participantes`;
 
-  if (e.fase === "inscripcion") {
+  if (vista === "inscripcion") {
     dibujarQR();
     pintarMuro(anterior);
-    if (anterior && anterior.fase !== "inscripcion") intro();
+    if (anterior && anterior.fase !== "inscripcion" && anterior.modo !== "companero") intro();
   }
-  if (e.fase === "cerrada") pintarSorteo(anterior);
-  if (anterior && anterior.fase !== e.fase) {
+  if (vista === "sorteo") pintarSorteo(anterior);
+  if (e.modo === "companero") pintarCompa(e, anterior);
+  const cambioVista = anterior && (anterior.fase !== e.fase || anterior.modo !== e.modo || (e.modo === "companero" && anterior.revelacion !== e.revelacion));
+  if (cambioVista) {
     $("revelacion").hidden = true;
     ajustarMusica();
   }

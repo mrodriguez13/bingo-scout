@@ -118,6 +118,19 @@ export function fanfarria() {
   tono({ f: midi(36), t: 1.9, dur: 1.6, tipo: "sine", vol: 0.2 });
 }
 
+/** Falla de pantalla: ruido cortado + zumbido. */
+export function glitch() {
+  for (let i = 0; i < 5; i++) ruido({ t: i * 0.05, dur: 0.03, vol: 0.12, pasaAltos: 400 + Math.random() * 3000 });
+  tono({ f: 90, t: 0, dur: 0.25, tipo: "square", vol: 0.06, filtro: 600 });
+  tono({ f: 1200, f2: 200, t: 0.05, dur: 0.2, tipo: "sawtooth", vol: 0.04, filtro: 3000 });
+}
+
+/** Logro desbloqueado (moneda + brillo). */
+export function logro() {
+  [76, 83, 88].forEach((m, i) => tono({ f: midi(m), t: i * 0.07, dur: 0.35, tipo: "square", vol: 0.06, filtro: 3500 }));
+  tono({ f: midi(95), t: 0.21, dur: 0.6, tipo: "sine", vol: 0.1 });
+}
+
 /** “Tadaa” corto para el celular cuando aparece tu número. */
 export function tadaa() {
   [72, 76, 79, 84].forEach((m, i) => tono({ f: midi(m), t: i * 0.08, dur: 0.5, tipo: "triangle", vol: 0.15 }));
