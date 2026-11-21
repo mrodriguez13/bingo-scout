@@ -15,12 +15,15 @@ export function iniciarCompa(opciones) {
 }
 
 const inicial = (n) => n.trim().charAt(0).toUpperCase();
+// Foto en /sinaptic/img/equipo/<nombre-sin-tildes>.webp; si no existe, queda la inicial.
+const slug = (n) => n.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+const foto = (n) => `<img src="/sinaptic/img/equipo/${slug(n)}.webp" alt="" loading="eager" onerror="this.remove()">`;
 const colores = (i) => `--c1:${PARES[i % PARES.length][0]};--c2:${PARES[i % PARES.length][1]}`;
 
 function pintarNominados(compa) {
   $("nominados").innerHTML = compa.nominados.map((n, i) =>
     `<div class="nominado" data-nombre="${escapar(n)}" style="animation-delay:${i * 60}ms">
-       <div class="avatar" style="${colores(i)}">${escapar(inicial(n))}</div>
+       <div class="avatar" style="${colores(i)}">${escapar(inicial(n))}${foto(n)}</div>
        <div class="nom">${escapar(n)}</div>
      </div>`).join("");
 }
@@ -28,7 +31,7 @@ function pintarNominados(compa) {
 function pintarFinal(compa, conLogros) {
   const i = Math.max(0, compa.nominados.indexOf(compa.ganadora));
   const av = $("final-avatar");
-  av.textContent = inicial(compa.ganadora);
+  av.innerHTML = escapar(inicial(compa.ganadora)) + foto(compa.ganadora);
   av.setAttribute("style", colores(i));
   $("final-nombre").textContent = compa.ganadora;
   $("final-titulo").textContent = compa.titulo;

@@ -204,3 +204,9 @@ body.arcoiris .ruleta-marco canvas { animation: arcoiris 2s linear infinite; }
 .logro .txt small { display: block; font-family: var(--f-mono); color: var(--cian); text-transform: uppercase; letter-spacing: .15em; font-size: .62em; }
 .logro .txt span { font-size: 1.15em; font-weight: 500; }
 @keyframes logro { from { opacity: 0; transform: translateX(-60px) scale(.9); } to { opacity: 1; transform: none; } }
+
+/* Fotos del equipo dentro del avatar (si no hay foto, queda la inicial) */
+.avatar, .perfil-avatar { position: relative; overflow: hidden; }
+.avatar img, .perfil-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nominados .avatar { width: 4.2em; height: 4.2em; font-size: 1.5em; }
+.nominado.fuera .avatar img { filter: grayscale(1); }
